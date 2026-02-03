@@ -13,8 +13,8 @@ export default function AdminPage() {
 
   // --- ESTADOS DE GESTIÓN ---
   const [tab, setTab] = useState<'servicios' | 'horarios'>('servicios');
-  const [servicios, setServicios] = useState([]);
-  const [horarios, setHorarios] = useState([]);
+  const [servicios, setServicios] = useState<any[]>([]);
+  const [horarios, setHorarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [editId, setEditId] = useState<number | null>(null);
