@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-export default function ReservaConfirmada() {
+// 1. Componente que contiene toda la lógica y usa los searchParams
+function ContenidoReserva() {
   const searchParams = useSearchParams()
   const externalReference = searchParams.get('external_reference') // El ID de la reserva
   const [status, setStatus] = useState('procesando')
@@ -14,32 +15,36 @@ export default function ReservaConfirmada() {
     async function confirmarYAgendar() {
       if (!externalReference) return;
 
-      // 1. Buscamos los datos de la reserva en Supabase
-      const { data: reserva } = await supabase
-        .from('reservas')
-        .select('*, servicios(*), horarios_disponibles(*)')
-        .eq('id', externalReference)
-        .single()
-
-      if (reserva) {
-        // 2. Marcamos como pagado en Supabase
-        await supabase
+      try {
+        // 1. Buscamos los datos de la reserva en Supabase
+        const { data: reserva } = await supabase
           .from('reservas')
-          .update({ estado_pago: 'aprobado' })
+          .select('*, servicios(*), horarios_disponibles(*)')
           .eq('id', externalReference)
+          .single()
 
-        // 3. Mandamos al Google Calendar
-        await fetch('/api/calendar', {
-          method: 'POST',
-          body: JSON.stringify({
-            nombreCliente: reserva.nombre_cliente,
-            nombreServicio: reserva.servicios.nombre,
-            diaHora: reserva.horarios_disponibles.dia_hora,
-            whatsapp: reserva.whatsapp_cliente
+        if (reserva) {
+          // 2. Marcamos como pagado en Supabase
+          await supabase
+            .from('reservas')
+            .update({ estado_pago: 'aprobado' })
+            .eq('id', externalReference)
+
+          // 3. Mandamos al Google Calendar
+          await fetch('/api/calendar', {
+            method: 'POST',
+            body: JSON.stringify({
+              nombreCliente: reserva.nombre_cliente,
+              nombreServicio: reserva.servicios.nombre,
+              diaHora: reserva.horarios_disponibles.dia_hora,
+              whatsapp: reserva.whatsapp_cliente
+            })
           })
-        })
-        
-        setStatus('listo')
+          
+          setStatus('listo')
+        }
+      } catch (error) {
+        console.error("Error al confirmar reserva:", error)
       }
     }
     confirmarYAgendar()
@@ -65,5 +70,19 @@ export default function ReservaConfirmada() {
         )}
       </div>
     </div>
+  )
+}
+
+// 2. Componente principal que exporta la página envuelta en Suspense
+export default function ReservaConfirmada() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-fuchsia-500" size={48} />
+        <p className="text-sm font-medium uppercase tracking-widest">Cargando...</p>
+      </div>
+    }>
+      <ContenidoReserva />
+    </Suspense>
   )
 }
