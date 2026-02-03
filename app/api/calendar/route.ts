@@ -5,12 +5,11 @@ export async function POST(request: Request) {
   try {
     const { nombreCliente, nombreServicio, diaHora, whatsapp } = await request.json();
 
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      undefined,
-      process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/calendar']
-    );
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_CLIENT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/calendar'],
+    });
 
     const calendar = google.calendar({ version: 'v3', auth });
 
