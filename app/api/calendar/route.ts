@@ -5,6 +5,7 @@ export async function POST(request: Request) {
   try {
     const { nombreCliente, nombreServicio, diaHora, whatsapp } = await request.json();
 
+    // 1. Configuramos la autenticación como un objeto único
     const auth = new google.auth.JWT({
       email: process.env.GOOGLE_CLIENT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
@@ -13,17 +14,24 @@ export async function POST(request: Request) {
 
     const calendar = google.calendar({ version: 'v3', auth });
 
-    // Definimos fin del evento (ej: 1 hora después)
+    // 2. Definimos inicio y fin del evento
     const startTime = new Date(diaHora);
-    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // Duración de 1 hora
 
     const event = {
       summary: `💅 ${nombreServicio} - ${nombreCliente}`,
       description: `Cliente: ${nombreCliente}\nWhatsApp: ${whatsapp}`,
-      start: { dateTime: startTime.toISOString() },
-      end: { dateTime: endTime.toISOString() },
+      start: { 
+        dateTime: startTime.toISOString(),
+        timeZone: 'America/Argentina/Buenos_Aires' // Ajusta según tu zona horaria
+      },
+      end: { 
+        dateTime: endTime.toISOString(),
+        timeZone: 'America/Argentina/Buenos_Aires'
+      },
     };
 
+    // 3. Insertamos el evento en el calendario de Google
     await calendar.events.insert({
       calendarId: process.env.GOOGLE_CALENDAR_ID,
       requestBody: event,
@@ -32,6 +40,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error Calendar:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Error al crear el evento en el calendario' }, 
+      { status: 500 }
+    );
   }
 }
