@@ -1,6 +1,13 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
+
+// Inicializamos Supabase internamente para asegurar la conexion en el edge
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -20,7 +27,7 @@ export async function POST(request: Request) {
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // 2. Definir horarios
+    // 2. Definir tiempos
     const startTime = new Date(reserva.horarios_disponibles.dia_hora);
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
 
@@ -35,11 +42,21 @@ export async function POST(request: Request) {
           end: { dateTime: endTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
         },
       });
-    } catch (calErr) {
-      console.error('Error en Calendar:', calErr);
+      console.log('Evento agendado exitosamente');
+    } catch (calErr: any) {
+      console.error('Error detallado en Google Calendar:', calErr.response?.data || calErr.message);
     }
 
-    // 4. Notificacion por Email a Rocio
+    // 4. Bloquear horario en Supabase para que no aparezca mas en la web
+    if (reserva.horarios_disponibles?.id) {
+      await supabaseAdmin
+        .from('horarios_disponibles')
+        .update({ disponible: false })
+        .eq('id', reserva.horarios_disponibles.id);
+      console.log('Horario bloqueado en base de datos');
+    }
+
+    // 5. Notificacion por Email a Rocio
     try {
       await resend.emails.send({
         from: 'Tekila Nails <onboarding@resend.dev>',
@@ -53,7 +70,7 @@ export async function POST(request: Request) {
           <p><strong>WhatsApp:</strong> ${reserva.whatsapp_cliente}</p>
           <p><strong>Senia:</strong> $${reserva.monto_senia}</p>
           <hr />
-          <p>El turno ya fue agendado en Google Calendar.</p>
+          <p>El turno ya fue agendado en Google Calendar y el horario bloqueado en la web.</p>
         `
       });
     } catch (mailErr) {
