@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
-// Inicializamos Supabase internamente para asegurar la conexion en el edge
+// Inicializamos el cliente de Supabase
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // 2. Definir tiempos
+    // 2. Definir tiempos (basado en tu tabla horarios_disponibles)
     const startTime = new Date(reserva.horarios_disponibles.dia_hora);
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
 
@@ -36,24 +36,32 @@ export async function POST(request: Request) {
       await calendar.events.insert({
         calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
         requestBody: {
-          summary: `${reserva.servicios.nombre} - ${reserva.nombre_cliente}`,
-          description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSenia pagada: $${reserva.monto_senia}`,
+          summary: `${reserva.servicios.nombre} - ${reserva.cliente_nombre} ${reserva.cliente_apellido}`,
+          description: `Cliente: ${reserva.cliente_nombre} ${reserva.cliente_apellido}\nWhatsApp: ${reserva.cliente_whatsapp}\nSeña pagada: $${reserva.monto_pagado}`,
           start: { dateTime: startTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
           end: { dateTime: endTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
         },
       });
       console.log('Evento agendado exitosamente');
     } catch (calErr: any) {
-      console.error('Error detallado en Google Calendar:', calErr.response?.data || calErr.message);
+      console.error('Error en Calendar:', calErr.response?.data || calErr.message);
     }
 
-    // 4. Bloquear horario en Supabase para que no aparezca mas en la web
-    if (reserva.horarios_disponibles?.id) {
-      await supabaseAdmin
+    // 4. BLOQUEO DE HORARIO (Ajustado a tu esquema SQL)
+    // Usamos 'horario_id' que es como se llama en tu tabla 'reservas'
+    const horarioId = reserva.horario_id;
+
+    if (horarioId) {
+      const { error: dbError } = await supabaseAdmin
         .from('horarios_disponibles')
-        .update({ disponible: false })
-        .eq('id', reserva.horarios_disponibles.id);
-      console.log('Horario bloqueado en base de datos');
+        .update({ estado: 'reservado' }) // En tu SQL pusiste que el estado cambia a 'reservado'
+        .eq('id', horarioId);
+      
+      if (dbError) {
+        console.error('Error al bloquear horario en Supabase:', dbError);
+      } else {
+        console.log('Horario marcado como reservado en la base de datos');
+      }
     }
 
     // 5. Notificacion por Email a Rocio
@@ -61,16 +69,16 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: 'Tekila Nails <onboarding@resend.dev>',
         to: process.env.EMAIL_ROCIO || '',
-        subject: `Nueva Reserva: ${reserva.nombre_cliente}`,
+        subject: `Nueva Reserva: ${reserva.cliente_nombre} ${reserva.cliente_apellido}`,
         html: `
           <h1>Nuevo turno confirmado</h1>
-          <p><strong>Cliente:</strong> ${reserva.nombre_cliente}</p>
+          <p><strong>Cliente:</strong> ${reserva.cliente_nombre} ${reserva.cliente_apellido}</p>
           <p><strong>Servicio:</strong> ${reserva.servicios.nombre}</p>
           <p><strong>Fecha:</strong> ${startTime.toLocaleDateString('es-AR')} a las ${startTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs</p>
-          <p><strong>WhatsApp:</strong> ${reserva.whatsapp_cliente}</p>
-          <p><strong>Senia:</strong> $${reserva.monto_senia}</p>
+          <p><strong>WhatsApp:</strong> ${reserva.cliente_whatsapp}</p>
+          <p><strong>Monto pagado:</strong> $${reserva.monto_pagado}</p>
           <hr />
-          <p>El turno ya fue agendado en Google Calendar y el horario bloqueado en la web.</p>
+          <p>El turno ya fue agendado en Google Calendar y el horario se quito de la lista de disponibles.</p>
         `
       });
     } catch (mailErr) {
