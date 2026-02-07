@@ -5,8 +5,10 @@ export async function POST(request: Request) {
   try {
     const { nombreServicio, precioSenia, reservaId } = await request.json();
     const token = process.env.MP_ACCESS_TOKEN?.trim();
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // Tu URL de Vercel
 
     if (!token) return NextResponse.json({ error: 'No token' }, { status: 500 });
+    if (!baseUrl) return NextResponse.json({ error: 'Falta NEXT_PUBLIC_BASE_URL' }, { status: 500 });
 
     const client = new MercadoPagoConfig({ accessToken: token });
     const preference = new Preference(client);
@@ -22,14 +24,21 @@ export async function POST(request: Request) {
             currency_id: 'ARS',
           }
         ],
-        // QUITAMOS el auto_return momentáneamente para que no de error 400
-        // El usuario tendrá que hacer clic en "Volver al sitio" manualmente al terminar
+        // 1. Configuramos las URLs dinámicas según el dominio (Vercel)
         back_urls: {
-          success: "http://localhost:3000/reserva-confirmada",
-          failure: "http://localhost:3000/reserva-error",
-          pending: "http://localhost:3000/reserva-error",
+          success: `${baseUrl}/reserva-confirmada`,
+          failure: `${baseUrl}/`,
+          pending: `${baseUrl}/`,
         },
+        // 2. Activamos el retorno automático para que vuelva solo a la web
+        auto_return: "approved",
+        // 3. Referencia externa para que la página de éxito sepa qué reserva procesar
         external_reference: String(reservaId),
+        // 4. Evitamos que puedan pagar con métodos que tarden días (opcional, solo tarjetas/dinero MP)
+        payment_methods: {
+          excluded_payment_types: [{ id: "ticket" }], // Excluye Rapipago/Pagofácil si querés confirmación inmediata
+          installments: 1 // Opcional: Limitar a 1 cuota para evitar líos con la seña
+        }
       }
     });
 
