@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Trash2, Camera, Edit3, X, Lock } from 'lucide-react';
+import { Trash2, Camera, Edit3, X, Lock, AlertCircle } from 'lucide-react';
 import { PrimaryButton } from "@/components/Button";
 
 export default function AdminPage() {
@@ -21,6 +21,9 @@ export default function AdminPage() {
   const [nuevoServicio, setNuevoServicio] = useState({ nombre: '', precio: '', descripcion: '' });
   const [nuevoHorario, setNuevoHorario] = useState('');
   const [foto, setFoto] = useState<File | null>(null);
+  
+  // --- ESTADO DE VALIDACIÓN ---
+  const [errores, setErrores] = useState({ nombre: false, precio: false });
 
   const resetTimer = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -65,7 +68,14 @@ export default function AdminPage() {
   };
 
   async function guardarServicio() {
-    if (!nuevoServicio.nombre || !nuevoServicio.precio) return alert("Completar datos");
+    // Validación de campos
+    const errorNombre = !nuevoServicio.nombre.trim();
+    const errorPrecio = !nuevoServicio.precio.trim();
+    
+    setErrores({ nombre: errorNombre, precio: errorPrecio });
+
+    if (errorNombre || errorPrecio) return;
+
     setLoading(true);
     try {
       let foto_url = editId ? servicios.find((s:any) => s.id === editId)?.foto_url : "";
@@ -91,6 +101,7 @@ export default function AdminPage() {
   const prepararEdicion = (s: any) => {
     setEditId(s.id);
     setNuevoServicio({ nombre: s.nombre, precio: s.precio.toString(), descripcion: s.descripcion || '' });
+    setErrores({ nombre: false, precio: false }); // Reset errores al editar
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -98,6 +109,7 @@ export default function AdminPage() {
     setEditId(null);
     setNuevoServicio({ nombre: '', precio: '', descripcion: '' });
     setFoto(null);
+    setErrores({ nombre: false, precio: false });
   };
 
   async function guardarHorario() {
@@ -149,9 +161,19 @@ export default function AdminPage() {
           <div className="grid md:grid-cols-2 gap-12">
             <div className="space-y-4 bg-zinc-50 dark:bg-zinc-900 p-6 rounded-2xl sticky top-8 h-fit border border-zinc-100 dark:border-zinc-800">
               <h2 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500">{editId ? "Editando" : "Nuevo Servicio"}</h2>
-              <input type="text" placeholder="Nombre" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-fuchsia-500" value={nuevoServicio.nombre} onChange={e => setNuevoServicio({...nuevoServicio, nombre: e.target.value})} />
-              <input type="number" placeholder="Precio" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-fuchsia-500" value={nuevoServicio.precio} onChange={e => setNuevoServicio({...nuevoServicio, precio: e.target.value})} />
+              
+              <div className="space-y-1">
+                <input type="text" placeholder="Nombre" className={`w-full p-3 bg-white dark:bg-zinc-800 border ${errores.nombre ? 'border-red-500' : 'border-zinc-100 dark:border-zinc-700'} rounded-lg text-sm outline-none focus:border-fuchsia-500`} value={nuevoServicio.nombre} onChange={e => {setNuevoServicio({...nuevoServicio, nombre: e.target.value}); setErrores({...errores, nombre: false})}} />
+                {errores.nombre && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> El nombre es obligatorio</p>}
+              </div>
+
+              <div className="space-y-1">
+                <input type="number" placeholder="Precio" className={`w-full p-3 bg-white dark:bg-zinc-800 border ${errores.precio ? 'border-red-500' : 'border-zinc-100 dark:border-zinc-700'} rounded-lg text-sm outline-none focus:border-fuchsia-500`} value={nuevoServicio.precio} onChange={e => {setNuevoServicio({...nuevoServicio, precio: e.target.value}); setErrores({...errores, precio: false})}} />
+                {errores.precio && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> El precio es obligatorio</p>}
+              </div>
+
               <textarea placeholder="Descripción" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm h-20 outline-none focus:border-fuchsia-500" value={nuevoServicio.descripcion} onChange={e => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})} />
+              
               <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer bg-zinc-200 dark:bg-zinc-800 p-3 rounded-lg justify-center italic text-black dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
                 <Camera size={14} /> {foto ? "Imagen lista" : "Subir Foto"}
                 <input type="file" hidden onChange={e => setFoto(e.target.files?.[0] || null)} />
@@ -194,18 +216,24 @@ export default function AdminPage() {
                 </div>
             </div>
             <div className="space-y-2">
-              {horarios.map((h: any) => (
-                <div key={h.id} className="p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex justify-between items-center shadow-sm">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">{new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long' })}</span>
-                    <span className="text-sm font-medium">{new Date(h.dia_hora).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} hs</span>
+              {horarios.map((h: any) => {
+                const esPasado = new Date(h.dia_hora) < new Date();
+                return (
+                  <div key={h.id} className={`p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex justify-between items-center shadow-sm ${esPasado ? 'opacity-40 grayscale-[0.5]' : ''}`}>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">
+                        {new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long' })}
+                        {esPasado && <span className="ml-2 text-red-500">[EXPIRADO]</span>}
+                      </span>
+                      <span className="text-sm font-medium">{new Date(h.dia_hora).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} hs</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={15}/></button>
+                      <button onClick={async () => { if(confirm("¿Borrar horario?")) { await supabase.from('horarios_disponibles').delete().eq('id', h.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={15}/></button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={15}/></button>
-                    <button onClick={async () => { if(confirm("¿Borrar horario?")) { await supabase.from('horarios_disponibles').delete().eq('id', h.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={15}/></button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

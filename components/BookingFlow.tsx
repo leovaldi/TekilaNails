@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Calendar, User, Phone, Loader2 } from 'lucide-react'
+import { Calendar, User, Phone, AlertCircle } from 'lucide-react'
 import { PrimaryButton } from './Button'
 
 export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, totalAPagarAhora: number }) {
@@ -9,6 +9,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
   const [horarios, setHorarios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  
+  // Estado para validaciones visuales
+  const [errores, setErrores] = useState({ nombre: false, whatsapp: false })
   
   const [seleccion, setSeleccion] = useState({
     horarioId: '',
@@ -23,16 +26,28 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
         .select('*')
         .order('dia_hora', { ascending: true })
       
-      if (data) setHorarios(data)
+      if (data) {
+        // MEJORA: Solo mostrar turnos cuya fecha/hora sea posterior a "ahora"
+        const ahora = new Date()
+        const futuros = data.filter(h => new Date(h.dia_hora) > ahora)
+        setHorarios(futuros)
+      }
       setLoading(false)
     }
     cargarHorarios()
   }, [])
 
   const handleFinalizarReserva = async () => {
+    // VALIDACIÓN: Remarcar en rojo si faltan datos
+    const errorNombre = !seleccion.nombre.trim()
+    const errorWA = !seleccion.whatsapp.trim()
+    
+    setErrores({ nombre: errorNombre, whatsapp: errorWA })
+
+    if (errorNombre || errorWA) return
+
     setIsProcessing(true)
     try {
-      // 1. Guardar la reserva en Supabase (Estado Pendiente)
       const { data: reserva, error: resError } = await supabase
         .from('reservas')
         .insert([{
@@ -48,7 +63,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
       if (resError) throw resError
 
-      // 2. Llamar a nuestra API de Mercado Pago
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,7 +75,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
       const { init_point } = await response.json()
 
-      // 3. Redirigir al pago
       if (init_point) {
         window.location.href = init_point
       } else {
@@ -133,26 +146,33 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
           </label>
           
           <div className="space-y-3">
-            <input 
-              type="text" 
-              placeholder="Nombre y Apellido"
-              className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl text-sm outline-none border border-transparent focus:border-fuchsia-500 text-black dark:text-white"
-              value={seleccion.nombre}
-              onChange={(e) => setSeleccion({...seleccion, nombre: e.target.value})}
-            />
-            <input 
-              type="tel" 
-              placeholder="WhatsApp (Ej: 2615556677)"
-              className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl text-sm outline-none border border-transparent focus:border-fuchsia-500 text-black dark:text-white"
-              value={seleccion.whatsapp}
-              onChange={(e) => setSeleccion({...seleccion, whatsapp: e.target.value})}
-            />
+            <div className="space-y-1">
+              <input 
+                type="text" 
+                placeholder="Nombre y Apellido"
+                className={`w-full p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl text-sm outline-none border ${errores.nombre ? 'border-red-500' : 'border-transparent'} focus:border-fuchsia-500 text-black dark:text-white transition-all`}
+                value={seleccion.nombre}
+                onChange={(e) => {setSeleccion({...seleccion, nombre: e.target.value}); setErrores({...errores, nombre: false})}}
+              />
+              {errores.nombre && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> El nombre es obligatorio</p>}
+            </div>
+
+            <div className="space-y-1">
+              <input 
+                type="tel" 
+                placeholder="WhatsApp (Ej: 2615556677)"
+                className={`w-full p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl text-sm outline-none border ${errores.whatsapp ? 'border-red-500' : 'border-transparent'} focus:border-fuchsia-500 text-black dark:text-white transition-all`}
+                value={seleccion.whatsapp}
+                onChange={(e) => {setSeleccion({...seleccion, whatsapp: e.target.value}); setErrores({...errores, whatsapp: false})}}
+              />
+              {errores.whatsapp && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> Necesitamos tu contacto</p>}
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <PrimaryButton 
               text={isProcessing ? "Procesando..." : "Ir a pagar seña"} 
-              disabled={!seleccion.nombre || !seleccion.whatsapp || isProcessing}
+              disabled={isProcessing}
               onClick={handleFinalizarReserva}
             />
             <button onClick={() => setStep(1)} className="text-[10px] uppercase tracking-widest text-zinc-400 hover:text-black">Volver a horarios</button>
