@@ -147,22 +147,22 @@ export default function AdminPage() {
       <main className="max-w-4xl mx-auto">
         {tab === 'servicios' ? (
           <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-4 bg-zinc-50 dark:bg-zinc-900 p-6 rounded-2xl sticky top-8 h-fit">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500">{editId ? "Editando" : "Nuevo"}</h2>
-              <input type="text" placeholder="Nombre" className="w-full p-3 bg-white dark:bg-zinc-800 rounded-lg text-sm outline-none" value={nuevoServicio.nombre} onChange={e => setNuevoServicio({...nuevoServicio, nombre: e.target.value})} />
-              <input type="number" placeholder="Precio" className="w-full p-3 bg-white dark:bg-zinc-800 rounded-lg text-sm outline-none" value={nuevoServicio.precio} onChange={e => setNuevoServicio({...nuevoServicio, precio: e.target.value})} />
-              <textarea placeholder="Descripción" className="w-full p-3 bg-white dark:bg-zinc-800 rounded-lg text-sm h-20 outline-none" value={nuevoServicio.descripcion} onChange={e => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})} />
-              <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer bg-zinc-200 dark:bg-zinc-800 p-3 rounded-lg justify-center italic text-black dark:text-white">
+            <div className="space-y-4 bg-zinc-50 dark:bg-zinc-900 p-6 rounded-2xl sticky top-8 h-fit border border-zinc-100 dark:border-zinc-800">
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500">{editId ? "Editando" : "Nuevo Servicio"}</h2>
+              <input type="text" placeholder="Nombre" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-fuchsia-500" value={nuevoServicio.nombre} onChange={e => setNuevoServicio({...nuevoServicio, nombre: e.target.value})} />
+              <input type="number" placeholder="Precio" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-fuchsia-500" value={nuevoServicio.precio} onChange={e => setNuevoServicio({...nuevoServicio, precio: e.target.value})} />
+              <textarea placeholder="Descripción" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm h-20 outline-none focus:border-fuchsia-500" value={nuevoServicio.descripcion} onChange={e => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})} />
+              <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer bg-zinc-200 dark:bg-zinc-800 p-3 rounded-lg justify-center italic text-black dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
                 <Camera size={14} /> {foto ? "Imagen lista" : "Subir Foto"}
                 <input type="file" hidden onChange={e => setFoto(e.target.files?.[0] || null)} />
               </label>
               <PrimaryButton text={loading ? "..." : editId ? "Actualizar" : "Publicar"} onClick={guardarServicio} />
-              {editId && <button onClick={cancelarEdicion} className="w-full text-[10px] uppercase text-zinc-400 pt-2 text-center">Cancelar</button>}
+              {editId && <button onClick={cancelarEdicion} className="w-full text-[10px] uppercase text-zinc-400 pt-2 text-center hover:text-black dark:hover:text-white transition-colors">Cancelar</button>}
             </div>
 
             <div className="space-y-3">
               {servicios.map((s: any) => (
-                <div key={s.id} className="group flex items-start justify-between p-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl shadow-sm">
+                <div key={s.id} className="flex items-start justify-between p-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl shadow-sm">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0 border border-zinc-50">
                       {s.foto_url ? <img src={s.foto_url} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-zinc-300"><Camera size={16} /></div>}
@@ -173,9 +173,9 @@ export default function AdminPage() {
                       <p className="text-[11px] text-fuchsia-500 font-medium">${s.precio}</p>
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
-                    <button onClick={() => prepararEdicion(s)} className="p-2 text-zinc-400 hover:text-black dark:hover:text-white"><Edit3 size={16}/></button>
-                    <button onClick={async () => { if(confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', s.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500"><Trash2 size={16}/></button>
+                  <div className="flex gap-1 pr-1">
+                    <button onClick={() => prepararEdicion(s)} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={16}/></button>
+                    <button onClick={async () => { if(confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', s.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={16}/></button>
                   </div>
                 </div>
               ))}
@@ -183,23 +183,26 @@ export default function AdminPage() {
           </div>
         ) : (
           <div className="max-w-md mx-auto">
-            <div className="bg-zinc-950 text-white p-8 rounded-3xl mb-8 border border-zinc-800">
-                <h2 className="text-[10px] uppercase tracking-widest text-fuchsia-400 mb-6 font-bold">Agenda</h2>
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-8 rounded-3xl mb-8 shadow-sm">
+                <h2 className="text-[10px] uppercase tracking-widest text-fuchsia-500 mb-6 font-bold">Nueva Disponibilidad</h2>
                 <div className="space-y-4">
-                    <input type="datetime-local" className="w-full p-4 bg-zinc-900 rounded-xl text-sm border border-zinc-800 outline-none text-white" value={nuevoHorario} onChange={e => setNuevoHorario(e.target.value)} />
-                    <PrimaryButton text={editId ? "Actualizar" : "Añadir"} onClick={guardarHorario} />
+                    <div className="space-y-2">
+                        <label className="text-[9px] uppercase font-bold text-zinc-400 ml-1">Fecha y Hora del Turno</label>
+                        <input type="datetime-local" className="w-full p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl text-sm border border-zinc-100 dark:border-zinc-700 outline-none text-black dark:text-white focus:border-fuchsia-500 transition-all" value={nuevoHorario} onChange={e => setNuevoHorario(e.target.value)} />
+                    </div>
+                    <PrimaryButton text={editId ? "Actualizar Horario" : "Añadir Horario"} onClick={guardarHorario} />
                 </div>
             </div>
             <div className="space-y-2">
               {horarios.map((h: any) => (
-                <div key={h.id} className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl flex justify-between items-center border border-transparent">
+                <div key={h.id} className="p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex justify-between items-center shadow-sm">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-zinc-400 uppercase">{new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long' })}</span>
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">{new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long' })}</span>
                     <span className="text-sm font-medium">{new Date(h.dia_hora).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} hs</span>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); }} className="p-2 text-zinc-400 hover:text-black"><Edit3 size={14}/></button>
-                    <button onClick={async () => { await supabase.from('horarios_disponibles').delete().eq('id', h.id); fetchData(); }} className="p-2 text-zinc-400 hover:text-red-500"><Trash2 size={14}/></button>
+                    <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={15}/></button>
+                    <button onClick={async () => { if(confirm("¿Borrar horario?")) { await supabase.from('horarios_disponibles').delete().eq('id', h.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={15}/></button>
                   </div>
                 </div>
               ))}

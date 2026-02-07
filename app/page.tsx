@@ -2,20 +2,19 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
 import {
   Instagram,
   MapPin,
   Clock,
   CreditCard,
-  Camera
 } from 'lucide-react'
 
 // IMPORTACIONES
 import { supabase } from '@/lib/supabase' 
 import { OPCIONES_RETIRO } from '../lib/servicios'
 import { PrimaryButton } from '@/components/Button'
-import { BookingFlow } from '@/components/BookingFlow' // Importamos el nuevo flujo
+import { BookingFlow } from '@/components/BookingFlow'
+import { CarruselServicios } from '@/components/CarruselServicios'
 
 // ─────────────────────────────────────────────
 // Interfaces
@@ -50,7 +49,8 @@ export default function Home() {
     getServicios()
   }, [])
 
-  const { totalServicio, senaNeta, totalAPagarAhora } = useMemo(() => {
+  // 2. CÁLCULOS DE RESERVA
+  const { totalServicio, totalAPagarAhora } = useMemo(() => {
     if (!selectedService) {
       return { totalServicio: 0, senaNeta: 0, totalAPagarAhora: 0 }
     }
@@ -65,7 +65,6 @@ export default function Home() {
 
     return {
       totalServicio: total,
-      senaNeta: sena,
       totalAPagarAhora: final,
     }
   }, [selectedService, retiroSeleccionado])
@@ -85,63 +84,24 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ─────────────── SECCIÓN 2: CARRUSEL ─────────────── */}
-      <section className="py-24 bg-zinc-50 dark:bg-zinc-900">
+      {/* ─────────────── SECCIÓN 2: CARRUSEL MEJORADO ─────────────── */}
+      <section className="py-24 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-16 flex flex-col md:flex-row justify-between items-end gap-4 px-4">
             <div>
               <h2 className="text-[10px] uppercase tracking-[0.5em] text-zinc-400 dark:text-zinc-500 mb-2 font-bold italic">Selección Editorial</h2>
-              <p className="text-3xl italic tracking-tighter font-light">Elegí tu próximo estilo</p>
-            </div>
-            <div className="flex gap-2">
-              <div className="w-8 h-[1px] bg-zinc-300 dark:bg-zinc-700 self-center" />
-              <span className="text-[9px] uppercase tracking-[0.3em] italic text-zinc-400 dark:text-zinc-500">Deslizá para explorar</span>
+              <p className="text-4xl italic tracking-tighter font-light">Elegí tu próximo estilo</p>
             </div>
           </div>
 
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-8 px-4 no-scrollbar pb-10">
-            {loading ? (
-              <div className="w-full text-center py-20 text-[10px] uppercase tracking-[0.3em] text-zinc-400 italic">Consultando Catálogo...</div>
-            ) : (
-              servicios.map(s => (
-                <motion.div
-                  key={s.id}
-                  whileHover={{ y: -8 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                  className="snap-center shrink-0 w-[82vw] md:w-[360px] bg-white dark:bg-zinc-950 p-4 shadow-sm border border-zinc-100 dark:border-zinc-800 group"
-                >
-                  <div className="relative aspect-[4/5] mb-6 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-                    {s.foto_url ? (
-                      <Image
-                        src={s.foto_url}
-                        alt={s.nombre}
-                        fill
-                        className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-300"><Camera size={32} /></div>
-                    )}
-                  </div>
-
-                  <div className="px-2">
-                    <div className="flex justify-between items-baseline mb-3">
-                      <h3 className="text-xl font-medium tracking-tight italic">{s.nombre}</h3>
-                      <span className="text-sm font-light text-zinc-400 dark:text-zinc-500">${s.precio.toLocaleString()}</span>
-                    </div>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-[11px] italic mb-8 h-10 line-clamp-2 leading-relaxed">{s.descripcion}</p>
-                    <PrimaryButton
-                      text="Seleccionar"
-                      onClick={() => {
-                        setSelectedService(s)
-                        setShowModal(true)
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              ))
-            )}
-            <div className="shrink-0 w-4 md:w-20" />
-          </div>
+          <CarruselServicios 
+            servicios={servicios}
+            loading={loading}
+            onSelect={(s) => {
+              setSelectedService(s)
+              setShowModal(true)
+            }}
+          />
         </div>
       </section>
 
@@ -210,12 +170,11 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between items-center pt-6 border-t border-zinc-200 dark:border-zinc-700">
                     <span className="font-bold uppercase text-[10px] tracking-widest">Seña + Gestión online:</span>
-                    <span className="text-4xl font-light text-[#FF00FF]">${totalAPagarAhora.toLocaleString()}</span>
+                    <span className="text-4xl font-light text-fuchsia-500">${totalAPagarAhora.toLocaleString()}</span>
                   </div>
                 </div>
 
-                {/* COMPONENTE DE FLUJO DE RESERVA INTEGRADO */}
-               <BookingFlow 
+                <BookingFlow 
                   servicio={selectedService} 
                   totalAPagarAhora={totalAPagarAhora}
                 />

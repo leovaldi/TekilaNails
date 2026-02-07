@@ -18,8 +18,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
   useEffect(() => {
     async function cargarHorarios() {
-      // Traemos solo horarios que NO estén en la tabla de reservas con pago aprobado
-      // (Por ahora traemos todos, luego podemos filtrar)
       const { data } = await supabase
         .from('horarios_disponibles')
         .select('*')
