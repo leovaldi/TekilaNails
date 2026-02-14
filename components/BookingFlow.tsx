@@ -10,7 +10,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
   
-  // Estado para validaciones visuales
   const [errores, setErrores] = useState({ nombre: false, whatsapp: false })
   
   const [seleccion, setSeleccion] = useState({
@@ -21,13 +20,14 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
   useEffect(() => {
     async function cargarHorarios() {
+      // --- CORRECCIÓN CRÍTICA: Filtramos por estado 'disponible' ---
       const { data } = await supabase
         .from('horarios_disponibles')
         .select('*')
+        .eq('estado', 'disponible') // SOLO TRAE LOS QUE NO ESTÁN RESERVADOS
         .order('dia_hora', { ascending: true })
       
       if (data) {
-        // MEJORA: Solo mostrar turnos cuya fecha/hora sea posterior a "ahora"
         const ahora = new Date()
         const futuros = data.filter(h => new Date(h.dia_hora) > ahora)
         setHorarios(futuros)
@@ -38,7 +38,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
   }, [])
 
   const handleFinalizarReserva = async () => {
-    // VALIDACIÓN: Remarcar en rojo si faltan datos
     const errorNombre = !seleccion.nombre.trim()
     const errorWA = !seleccion.whatsapp.trim()
     
@@ -48,6 +47,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
     setIsProcessing(true)
     try {
+      // Insertamos la reserva vinculando el servicio y el horario
       const { data: reserva, error: resError } = await supabase
         .from('reservas')
         .insert([{
@@ -63,6 +63,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: any, tot
 
       if (resError) throw resError
 
+      // Generamos el checkout de Mercado Pago (que ya configuramos con el recargo)
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
