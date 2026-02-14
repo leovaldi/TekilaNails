@@ -110,21 +110,22 @@ export default function AdminPage() {
     setErrores({ nombre: false, precio: false });
   };
 
-  // --- FUNCIÓN CORREGIDA: Ajuste de zona horaria Argentina ---
+  // --- MEJORA: Función para guardar horario sin desfase ---
   async function guardarHorario() {
     if (!nuevoHorario) return;
 
-    // Agregamos el desplazamiento -03:00 para que Supabase guarde la hora exacta de Argentina
-    const horarioConZona = `${nuevoHorario}:00-03:00`;
+    // Convertimos a ISO para que Supabase lo guarde en UTC correctamente
+    const fechaISO = new Date(nuevoHorario).toISOString();
 
     if (editId) { 
       await supabase.from('horarios_disponibles')
-        .update({ dia_hora: horarioConZona })
+        .update({ dia_hora: fechaISO })
         .eq('id', editId); 
     } 
     else { 
+      // Agregamos 'estado' explícitamente para evitar conflictos con el esquema
       await supabase.from('horarios_disponibles')
-        .insert([{ dia_hora: horarioConZona }]); 
+        .insert([{ dia_hora: fechaISO, estado: 'disponible' }]); 
     }
     setEditId(null);
     setNuevoHorario('');
