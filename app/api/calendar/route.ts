@@ -13,8 +13,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
   try {
     const { reserva } = await request.json();
+    console.log('Datos recibidos en API:', reserva);
 
-    // 1. Configuración de Google Auth
+    // 1. Configuración OAuth2
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET
@@ -22,12 +23,9 @@ export async function POST(request: Request) {
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // 2. Manejo de Horarios (Corrección de desfase de 3 horas)
-    const fechaOriginal = new Date(reserva.horarios_disponibles.dia_hora);
-    
-    // Forzamos la zona horaria de Argentina para el Calendar
-    const startTime = fechaOriginal.toISOString(); 
-    const endTime = new Date(fechaOriginal.getTime() + 60 * 60 * 1000).toISOString();
+    // 2. Definir horarios (Con ajuste de zona horaria para Argentina)
+    const startTime = new Date(reserva.horarios_disponibles.dia_hora);
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
 
     // 3. Insertar en Google Calendar
     try {
@@ -36,35 +34,36 @@ export async function POST(request: Request) {
         requestBody: {
           summary: `${reserva.servicios.nombre} - ${reserva.nombre_cliente}`,
           description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSeña: $${reserva.monto_senia}`,
-          start: { 
-            dateTime: startTime, 
-            timeZone: 'America/Argentina/Buenos_Aires' 
-          },
-          end: { 
-            dateTime: endTime, 
-            timeZone: 'America/Argentina/Buenos_Aires' 
-          },
+          start: { dateTime: startTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
+          end: { dateTime: endTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
         },
       });
+      console.log('Calendar OK');
     } catch (calErr) {
       console.error('Error Calendar:', calErr);
     }
 
-    // 4. CORRECCIÓN: BLOQUEO DE HORARIO
-    // Usamos el ID que viene de la relación 'horarios_disponibles'
-    const idParaBloquear = reserva.horario_id || reserva.horarios_disponibles?.id;
+    // 4. URGENTE: BLOQUEO DE HORARIO EN SUPABASE
+    // Buscamos el ID en todas las ubicaciones posibles del objeto reserva
+    const idHorario = reserva.horario_id || reserva.id_horario || reserva.horarios_disponibles?.id;
 
-    if (idParaBloquear) {
-      const { error: dbError } = await supabaseAdmin
+    if (idHorario) {
+      console.log('Intentando bloquear horario ID:', idHorario);
+      const { error: dbError, data } = await supabaseAdmin
         .from('horarios_disponibles')
         .update({ estado: 'reservado' }) 
-        .eq('id', idParaBloquear);
+        .eq('id', idHorario)
+        .select(); // El select nos confirma si realmente encontró la fila
       
       if (dbError) {
-        console.error('Error al bloquear en Supabase:', dbError);
+        console.error('Error de base de datos al bloquear:', dbError.message);
+      } else if (data && data.length > 0) {
+        console.log('Horario bloqueado con éxito en Supabase:', data);
       } else {
-        console.log('Horario bloqueado exitosamente');
+        console.warn('No se encontró el horario con ID:', idHorario, 'para bloquear.');
       }
+    } else {
+      console.error('No se encontró ID de horario en el objeto reserva para bloquear.');
     }
 
     // 5. Notificación por Email
@@ -77,10 +76,9 @@ export async function POST(request: Request) {
           <h1>Nuevo turno confirmado</h1>
           <p><strong>Cliente:</strong> ${reserva.nombre_cliente}</p>
           <p><strong>Servicio:</strong> ${reserva.servicios.nombre}</p>
-          <p><strong>Fecha:</strong> ${fechaOriginal.toLocaleDateString('es-AR', {timeZone: 'America/Argentina/Buenos_Aires'})} a las ${fechaOriginal.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' })}hs</p>
-          <p><strong>WhatsApp:</strong> ${reserva.whatsapp_cliente}</p>
+          <p><strong>Fecha:</strong> ${startTime.toLocaleDateString('es-AR')} a las ${startTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}hs</p>
           <hr />
-          <p>El turno ya fue agendado y el horario se bloqueó en la web.</p>
+          <p>El turno ya fue agendado y el horario se marcó como reservado.</p>
         `
       });
     } catch (mailErr) {
@@ -90,6 +88,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
 
   } catch (error: any) {
+    console.error('Error crítico en la API:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
