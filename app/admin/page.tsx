@@ -68,10 +68,8 @@ export default function AdminPage() {
   };
 
   async function guardarServicio() {
-    // Validación de campos
     const errorNombre = !nuevoServicio.nombre.trim();
     const errorPrecio = !nuevoServicio.precio.trim();
-    
     setErrores({ nombre: errorNombre, precio: errorPrecio });
 
     if (errorNombre || errorPrecio) return;
@@ -82,7 +80,7 @@ export default function AdminPage() {
       if (foto) {
         const fileExt = foto.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: uploadData } = await supabase.storage
           .from('fotos-servicios')
           .upload(fileName, foto);
         if (uploadData) {
@@ -101,7 +99,7 @@ export default function AdminPage() {
   const prepararEdicion = (s: any) => {
     setEditId(s.id);
     setNuevoServicio({ nombre: s.nombre, precio: s.precio.toString(), descripcion: s.descripcion || '' });
-    setErrores({ nombre: false, precio: false }); // Reset errores al editar
+    setErrores({ nombre: false, precio: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -112,10 +110,22 @@ export default function AdminPage() {
     setErrores({ nombre: false, precio: false });
   };
 
+  // --- FUNCIÓN CORREGIDA: Ajuste de zona horaria Argentina ---
   async function guardarHorario() {
     if (!nuevoHorario) return;
-    if (editId) { await supabase.from('horarios_disponibles').update({ dia_hora: nuevoHorario }).eq('id', editId); } 
-    else { await supabase.from('horarios_disponibles').insert([{ dia_hora: nuevoHorario }]); }
+
+    // Agregamos el desplazamiento -03:00 para que Supabase guarde la hora exacta de Argentina
+    const horarioConZona = `${nuevoHorario}:00-03:00`;
+
+    if (editId) { 
+      await supabase.from('horarios_disponibles')
+        .update({ dia_hora: horarioConZona })
+        .eq('id', editId); 
+    } 
+    else { 
+      await supabase.from('horarios_disponibles')
+        .insert([{ dia_hora: horarioConZona }]); 
+    }
     setEditId(null);
     setNuevoHorario('');
     fetchData();
@@ -222,10 +232,18 @@ export default function AdminPage() {
                   <div key={h.id} className={`p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex justify-between items-center shadow-sm ${esPasado ? 'opacity-40 grayscale-[0.5]' : ''}`}>
                     <div className="flex flex-col">
                       <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">
-                        {new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long' })}
+                        {new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long', timeZone: 'America/Argentina/Buenos_Aires' })}
                         {esPasado && <span className="ml-2 text-red-500">[EXPIRADO]</span>}
                       </span>
-                      <span className="text-sm font-medium">{new Date(h.dia_hora).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} hs</span>
+                      <span className="text-sm font-medium">
+                        {new Date(h.dia_hora).toLocaleString('es-AR', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          hour: '2-digit', 
+                          minute: '2-digit',
+                          timeZone: 'America/Argentina/Buenos_Aires' 
+                        })} hs
+                      </span>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={15}/></button>
