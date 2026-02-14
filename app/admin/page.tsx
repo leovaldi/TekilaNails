@@ -1,36 +1,32 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Trash2, Camera, Edit3, X, Lock, AlertCircle } from 'lucide-react';
-import { PrimaryButton } from "@/components/Button";
+import { Lock, X } from 'lucide-react';
+import ReservasTab from './components/ReservasTab';
+import ServiciosTab from './components/ServiciosTab';
+import HorariosTab from './components/HorariosTab';
 
 export default function AdminPage() {
-  // --- SEGURIDAD Y SESIÓN ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [tab, setTab] = useState<'reservas' | 'servicios' | 'horarios'>('reservas');
+  const [loading, setLoading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // --- ESTADOS DE GESTIÓN ---
-  const [tab, setTab] = useState<'servicios' | 'horarios'>('servicios');
+  // Estados compartidos
   const [servicios, setServicios] = useState<any[]>([]);
   const [horarios, setHorarios] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-
+  const [reservas, setReservas] = useState<any[]>([]);
   const [editId, setEditId] = useState<number | null>(null);
   const [nuevoServicio, setNuevoServicio] = useState({ nombre: '', precio: '', descripcion: '' });
   const [nuevoHorario, setNuevoHorario] = useState('');
   const [foto, setFoto] = useState<File | null>(null);
-  
-  // --- ESTADO DE VALIDACIÓN ---
   const [errores, setErrores] = useState({ nombre: false, precio: false });
 
   const resetTimer = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      setIsAuthenticated(false);
-      setPassword('');
-    }, 15 * 60 * 1000);
+    timeoutRef.current = setTimeout(() => { setIsAuthenticated(false); setPassword(''); }, 15 * 60 * 1000);
   };
 
   useEffect(() => {
@@ -47,104 +43,75 @@ export default function AdminPage() {
   }, [tab, isAuthenticated]);
 
   async function fetchData() {
+    setLoading(true);
     if (tab === 'servicios') {
       const { data } = await supabase.from('servicios').select('*').order('id', { ascending: false });
       if (data) setServicios(data);
-    } else {
+    } else if (tab === 'horarios') {
       const { data } = await supabase.from('horarios_disponibles').select('*').order('dia_hora', { ascending: true });
       if (data) setHorarios(data);
+    } else if (tab === 'reservas') {
+      const { data } = await supabase.from('reservas').select('*, servicios(*), horarios_disponibles(*)').eq('estado_pago', 'aprobado').order('created_at', { ascending: false });
+      if (data) setReservas(data);
     }
+    setLoading(false);
   }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const masterKey = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Tekila2026";
-    if (password === masterKey) {
-      setIsAuthenticated(true);
-      setLoginError(false);
-    } else {
-      setLoginError(true);
-    }
+    if (password === (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Tekila2026")) {
+      setIsAuthenticated(true); setLoginError(false);
+    } else { setLoginError(true); }
   };
 
   async function guardarServicio() {
-    const errorNombre = !nuevoServicio.nombre.trim();
-    const errorPrecio = !nuevoServicio.precio.trim();
-    setErrores({ nombre: errorNombre, precio: errorPrecio });
-
-    if (errorNombre || errorPrecio) return;
+    const errN = !nuevoServicio.nombre.trim();
+    const errP = !nuevoServicio.precio.trim();
+    setErrores({ nombre: errN, precio: errP });
+    if (errN || errP) return;
 
     setLoading(true);
-    try {
-      let foto_url = editId ? servicios.find((s:any) => s.id === editId)?.foto_url : "";
-      if (foto) {
-        const fileExt = foto.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const { data: uploadData } = await supabase.storage
-          .from('fotos-servicios')
-          .upload(fileName, foto);
-        if (uploadData) {
-          const { data: urlData } = supabase.storage.from('fotos-servicios').getPublicUrl(fileName);
-          foto_url = urlData.publicUrl;
-        }
+    let foto_url = editId ? servicios.find((s:any) => s.id === editId)?.foto_url : "";
+    if (foto) {
+      const fileName = `${Math.random()}.${foto.name.split('.').pop()}`;
+      const { data: uploadData } = await supabase.storage.from('fotos-servicios').upload(fileName, foto);
+      if (uploadData) {
+        const { data: urlData } = supabase.storage.from('fotos-servicios').getPublicUrl(fileName);
+        foto_url = urlData.publicUrl;
       }
-      const payload = { ...nuevoServicio, precio: parseInt(nuevoServicio.precio), foto_url };
-      if (editId) { await supabase.from('servicios').update(payload).eq('id', editId); } 
-      else { await supabase.from('servicios').insert([payload]); }
-      cancelarEdicion();
-      fetchData();
-    } finally { setLoading(false); }
+    }
+    const payload = { ...nuevoServicio, precio: parseInt(nuevoServicio.precio), foto_url };
+    if (editId) await supabase.from('servicios').update(payload).eq('id', editId);
+    else await supabase.from('servicios').insert([payload]);
+    cancelarEdicion(); fetchData();
+  }
+
+  async function guardarHorario() {
+    if (!nuevoHorario) return;
+    const fechaISO = new Date(nuevoHorario).toISOString();
+    if (editId) await supabase.from('horarios_disponibles').update({ dia_hora: fechaISO }).eq('id', editId);
+    else await supabase.from('horarios_disponibles').insert([{ dia_hora: fechaISO, estado: 'disponible' }]);
+    setEditId(null); setNuevoHorario(''); fetchData();
   }
 
   const prepararEdicion = (s: any) => {
     setEditId(s.id);
     setNuevoServicio({ nombre: s.nombre, precio: s.precio.toString(), descripcion: s.descripcion || '' });
-    setErrores({ nombre: false, precio: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const cancelarEdicion = () => {
-    setEditId(null);
-    setNuevoServicio({ nombre: '', precio: '', descripcion: '' });
-    setFoto(null);
-    setErrores({ nombre: false, precio: false });
+    setEditId(null); setNuevoServicio({ nombre: '', precio: '', descripcion: '' }); setFoto(null); setErrores({ nombre: false, precio: false });
   };
-
-  // --- MEJORA: Función para guardar horario sin desfase ---
-  async function guardarHorario() {
-    if (!nuevoHorario) return;
-
-    // Convertimos a ISO para que Supabase lo guarde en UTC correctamente
-    const fechaISO = new Date(nuevoHorario).toISOString();
-
-    if (editId) { 
-      await supabase.from('horarios_disponibles')
-        .update({ dia_hora: fechaISO })
-        .eq('id', editId); 
-    } 
-    else { 
-      // Agregamos 'estado' explícitamente para evitar conflictos con el esquema
-      await supabase.from('horarios_disponibles')
-        .insert([{ dia_hora: fechaISO, estado: 'disponible' }]); 
-    }
-    setEditId(null);
-    setNuevoHorario('');
-    fetchData();
-  }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-        <form onSubmit={handleLogin} className="max-w-sm w-full space-y-8 text-center">
-          <div className="space-y-2">
-            <Lock className="text-fuchsia-500 mx-auto" size={32} />
-            <h1 className="text-white text-3xl italic tracking-tighter">Acceso Privado</h1>
-            <p className="text-zinc-500 text-[10px] uppercase tracking-[0.3em]">Gestión Tekila</p>
-          </div>
-          <div className="space-y-4">
-            <input type="password" placeholder="Contraseña Maestra" className={`w-full p-4 bg-zinc-900 border ${loginError ? 'border-red-500' : 'border-zinc-800'} text-white rounded-2xl outline-none focus:border-fuchsia-500 text-center`} value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button type="submit" className="w-full py-4 bg-white text-black rounded-2xl text-[10px] uppercase font-bold tracking-widest hover:bg-fuchsia-500 hover:text-white transition-all">Entrar</button>
-          </div>
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 text-center">
+        <form onSubmit={handleLogin} className="max-w-sm w-full space-y-8">
+          <Lock className="text-fuchsia-500 mx-auto" size={32} />
+          <h1 className="text-white text-3xl italic tracking-tighter">Acceso Privado</h1>
+          <input type="password" placeholder="Contraseña Maestra" className={`w-full p-4 bg-zinc-900 border ${loginError ? 'border-red-500' : 'border-zinc-800'} text-white rounded-2xl outline-none text-center`} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button type="submit" className="w-full py-4 bg-white text-black rounded-2xl text-[10px] uppercase font-bold tracking-widest hover:bg-fuchsia-500 hover:text-white transition-all">Entrar</button>
         </form>
       </div>
     );
@@ -152,109 +119,28 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white p-6 md:p-12">
-      <header className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-3xl italic tracking-tighter">Admin Tekila</h1>
-          <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-400">Gestión de Contenido</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="/" target="_blank" className="flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-full text-[10px] uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">Ver Web <X className="rotate-45" size={12} /></a>
-          <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-full">
-            {['servicios', 'horarios'].map((t) => (
-              <button key={t} onClick={() => { setTab(t as any); cancelarEdicion(); }} className={`px-6 py-2 rounded-full text-[10px] uppercase tracking-widest transition-all ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-sm font-bold' : 'text-zinc-400'}`}>{t}</button>
-            ))}
-          </div>
+      <header className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div><h1 className="text-3xl italic tracking-tighter">Admin Tekila</h1></div>
+        <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-full">
+          {['reservas', 'servicios', 'horarios'].map((t) => (
+            <button key={t} onClick={() => { setTab(t as any); cancelarEdicion(); }} className={`px-6 py-2 rounded-full text-[10px] uppercase tracking-widest transition-all ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-sm font-bold text-fuchsia-500' : 'text-zinc-400'}`}>{t}</button>
+          ))}
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto">
-        {tab === 'servicios' ? (
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-4 bg-zinc-50 dark:bg-zinc-900 p-6 rounded-2xl sticky top-8 h-fit border border-zinc-100 dark:border-zinc-800">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500">{editId ? "Editando" : "Nuevo Servicio"}</h2>
-              
-              <div className="space-y-1">
-                <input type="text" placeholder="Nombre" className={`w-full p-3 bg-white dark:bg-zinc-800 border ${errores.nombre ? 'border-red-500' : 'border-zinc-100 dark:border-zinc-700'} rounded-lg text-sm outline-none focus:border-fuchsia-500`} value={nuevoServicio.nombre} onChange={e => {setNuevoServicio({...nuevoServicio, nombre: e.target.value}); setErrores({...errores, nombre: false})}} />
-                {errores.nombre && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> El nombre es obligatorio</p>}
-              </div>
-
-              <div className="space-y-1">
-                <input type="number" placeholder="Precio" className={`w-full p-3 bg-white dark:bg-zinc-800 border ${errores.precio ? 'border-red-500' : 'border-zinc-100 dark:border-zinc-700'} rounded-lg text-sm outline-none focus:border-fuchsia-500`} value={nuevoServicio.precio} onChange={e => {setNuevoServicio({...nuevoServicio, precio: e.target.value}); setErrores({...errores, precio: false})}} />
-                {errores.precio && <p className="text-[9px] text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> El precio es obligatorio</p>}
-              </div>
-
-              <textarea placeholder="Descripción" className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-sm h-20 outline-none focus:border-fuchsia-500" value={nuevoServicio.descripcion} onChange={e => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})} />
-              
-              <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer bg-zinc-200 dark:bg-zinc-800 p-3 rounded-lg justify-center italic text-black dark:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
-                <Camera size={14} /> {foto ? "Imagen lista" : "Subir Foto"}
-                <input type="file" hidden onChange={e => setFoto(e.target.files?.[0] || null)} />
-              </label>
-              <PrimaryButton text={loading ? "..." : editId ? "Actualizar" : "Publicar"} onClick={guardarServicio} />
-              {editId && <button onClick={cancelarEdicion} className="w-full text-[10px] uppercase text-zinc-400 pt-2 text-center hover:text-black dark:hover:text-white transition-colors">Cancelar</button>}
-            </div>
-
-            <div className="space-y-3">
-              {servicios.map((s: any) => (
-                <div key={s.id} className="flex items-start justify-between p-3 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0 border border-zinc-50">
-                      {s.foto_url ? <img src={s.foto_url} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-zinc-300"><Camera size={16} /></div>}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold">{s.nombre}</p>
-                      <p className="text-[10px] text-zinc-500 leading-tight mb-1">{s.descripcion}</p>
-                      <p className="text-[11px] text-fuchsia-500 font-medium">${s.precio}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1 pr-1">
-                    <button onClick={() => prepararEdicion(s)} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={16}/></button>
-                    <button onClick={async () => { if(confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', s.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={16}/></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-md mx-auto">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-8 rounded-3xl mb-8 shadow-sm">
-                <h2 className="text-[10px] uppercase tracking-widest text-fuchsia-500 mb-6 font-bold">Nueva Disponibilidad</h2>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-[9px] uppercase font-bold text-zinc-400 ml-1">Fecha y Hora del Turno</label>
-                        <input type="datetime-local" className="w-full p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl text-sm border border-zinc-100 dark:border-zinc-700 outline-none text-black dark:text-white focus:border-fuchsia-500 transition-all" value={nuevoHorario} onChange={e => setNuevoHorario(e.target.value)} />
-                    </div>
-                    <PrimaryButton text={editId ? "Actualizar Horario" : "Añadir Horario"} onClick={guardarHorario} />
-                </div>
-            </div>
-            <div className="space-y-2">
-              {horarios.map((h: any) => {
-                const esPasado = new Date(h.dia_hora) < new Date();
-                return (
-                  <div key={h.id} className={`p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex justify-between items-center shadow-sm ${esPasado ? 'opacity-40 grayscale-[0.5]' : ''}`}>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">
-                        {new Date(h.dia_hora).toLocaleDateString('es-AR', { weekday: 'long', timeZone: 'America/Argentina/Buenos_Aires' })}
-                        {esPasado && <span className="ml-2 text-red-500">[EXPIRADO]</span>}
-                      </span>
-                      <span className="text-sm font-medium">
-                        {new Date(h.dia_hora).toLocaleString('es-AR', { 
-                          day: '2-digit', 
-                          month: 'short', 
-                          hour: '2-digit', 
-                          minute: '2-digit',
-                          timeZone: 'America/Argentina/Buenos_Aires' 
-                        })} hs
-                      </span>
-                    </div>
-                    <div className="flex gap-1">
-                      <button onClick={() => { setEditId(h.id); setNuevoHorario(h.dia_hora.slice(0, 16)); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="Editar"><Edit3 size={15}/></button>
-                      <button onClick={async () => { if(confirm("¿Borrar horario?")) { await supabase.from('horarios_disponibles').delete().eq('id', h.id); fetchData(); } }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all" title="Borrar"><Trash2 size={15}/></button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        {tab === 'reservas' && <ReservasTab reservas={reservas} />}
+        {tab === 'servicios' && (
+          <ServiciosTab 
+            {...{servicios, nuevoServicio, setNuevoServicio, errores, setErrores, loading, editId, guardarServicio, prepararEdicion, cancelarEdicion, setFoto, foto}} 
+            borrarServicio={async (id: any) => { if(confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', id); fetchData(); }}}
+          />
+        )}
+        {tab === 'horarios' && (
+          <HorariosTab 
+            {...{horarios, nuevoHorario, setNuevoHorario, guardarHorario, editId, setEditId}} 
+            borrarHorario={async (id: any) => { if(confirm("¿Borrar?")) { await supabase.from('horarios_disponibles').delete().eq('id', id); fetchData(); }}}
+          />
         )}
       </main>
     </div>
