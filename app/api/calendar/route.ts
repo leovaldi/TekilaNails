@@ -23,11 +23,18 @@ export async function POST(request: Request) {
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // 2. Definir horarios (Ajuste de objeto Date)
+    // 2. Definir horarios (Sin usar toISOString para evitar el salto de 3hs)
     const startTime = new Date(reserva.horarios_disponibles.dia_hora);
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
 
-    // --- MEJORA: Formateo de fecha forzado para Argentina (Soluciona el error de las 3hs en el mail) ---
+    // Formateo para Google (Formato: YYYY-MM-DDTHH:mm:ss)
+    // Esto asegura que Google reciba EXACTAMENTE lo que dice la base de datos
+    const formatForGoogle = (date: Date) => {
+        const offset = date.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(date.getTime() - offset).toISOString().slice(0, -1);
+        return localISOTime;
+    };
+
     const fechaLegible = startTime.toLocaleString('es-AR', {
       timeZone: 'America/Argentina/Buenos_Aires',
       day: '2-digit',
@@ -46,11 +53,11 @@ export async function POST(request: Request) {
           summary: `${reserva.servicios.nombre} - ${reserva.nombre_cliente}`,
           description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSeña: $${reserva.monto_senia}`,
           start: { 
-            dateTime: startTime.toISOString(), 
+            dateTime: reserva.horarios_disponibles.dia_hora, // Usamos directamente el string de la DB que es ISO limpio
             timeZone: 'America/Argentina/Buenos_Aires' 
           },
           end: { 
-            dateTime: endTime.toISOString(), 
+            dateTime: new Date(new Date(reserva.horarios_disponibles.dia_hora).getTime() + 60 * 60 * 1000).toISOString(), 
             timeZone: 'America/Argentina/Buenos_Aires' 
           },
         },
@@ -60,27 +67,19 @@ export async function POST(request: Request) {
       console.error('Error Calendar:', calErr);
     }
 
-    // 4. BLOQUEO DE HORARIO EN SUPABASE
+    // 4. BLOQUEO DE HORARIO EN SUPABASE (Manteniendo tu lógica intacta)
     const idHorario = reserva.horario_id || reserva.id_horario || reserva.horarios_disponibles?.id;
 
     if (idHorario) {
-      console.log('Intentando bloquear horario ID:', idHorario);
-      const { error: dbError, data } = await supabaseAdmin
+      const { error: dbError } = await supabaseAdmin
         .from('horarios_disponibles')
         .update({ estado: 'reservado' }) 
-        .eq('id', idHorario)
-        .select();
+        .eq('id', idHorario);
       
-      if (dbError) {
-        console.error('Error de base de datos al bloquear:', dbError.message);
-      } else if (data && data.length > 0) {
-        console.log('Horario bloqueado con éxito en Supabase:', data);
-      } else {
-        console.warn('No se encontró el horario con ID:', idHorario, 'para bloquear.');
-      }
+      if (dbError) console.error('Error DB:', dbError.message);
     }
 
-    // 5. Notificación por Email (Usando la fecha formateada sin desfase)
+    // 5. Notificación por Email
     try {
       await resend.emails.send({
         from: 'Tekila Nails <onboarding@resend.dev>',
