@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Loader2 } from 'lucide-react'
@@ -8,14 +8,18 @@ import { supabase } from '@/lib/supabase'
 function ContenidoReserva() {
   const searchParams = useSearchParams()
   const externalReference = searchParams.get('external_reference') 
+  const paymentId = searchParams.get('payment_id') // Capturamos el ID de pago de Mercado Pago
   const [status, setStatus] = useState('procesando')
+  const ejecutadoRef = useRef(false) // Evita doble ejecución por el StrictMode de React
 
   useEffect(() => {
     async function confirmarYAgendar() {
       // Si no hay referencia externa o ya terminamos, salimos
-      if (!externalReference || status === 'listo') return;
+      if (!externalReference || status === 'listo' || ejecutadoRef.current) return;
 
       try {
+        ejecutadoRef.current = true;
+
         // 1. Buscamos los datos de la reserva con sus relaciones completas
         const { data: reserva, error: fetchError } = await supabase
           .from('reservas')
@@ -29,17 +33,19 @@ function ContenidoReserva() {
           return;
         }
 
-        // 2. Si el pago aún no figura aprobado, lo actualizamos
-        if (reserva.estado_pago !== 'aprobado') {
+        // 2. Actualizamos el estado de pago e incluimos el payment_id
+        // Solo lo hacemos si el pago no figuraba como aprobado previamente
+        if (reserva.estado_pago !== 'aprobado' || !reserva.payment_id) {
           await supabase
             .from('reservas')
-            .update({ estado_pago: 'aprobado' })
+            .update({ 
+              estado_pago: 'aprobado',
+              payment_id: paymentId // Guardamos el ID que viene de Mercado Pago
+            })
             .eq('id', externalReference);
         }
 
         // 3. LLAMADA A LA API (Calendar + Mail + Bloqueo de Horario)
-        // Eliminamos el condicional previo para garantizar que la API de bloqueo 
-        // y notificación se ejecute siempre que la clienta llegue aquí.
         const response = await fetch('/api/calendar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -51,7 +57,6 @@ function ContenidoReserva() {
         } else {
           console.error("Error al procesar la API de calendario/notificación");
           // Aunque falle la API, si el pago está aprobado, marcamos como listo
-          // para no asustar a la clienta, pero registramos el error en consola.
           setStatus('listo'); 
         }
         
@@ -61,7 +66,7 @@ function ContenidoReserva() {
       }
     }
     confirmarYAgendar();
-  }, [externalReference]); // Solo depende de la referencia externa
+  }, [externalReference, paymentId]); // Añadimos paymentId como dependencia
 
   if (status === 'error') {
     return (
