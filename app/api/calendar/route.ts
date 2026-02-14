@@ -23,9 +23,20 @@ export async function POST(request: Request) {
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // 2. Definir horarios (Con ajuste de zona horaria para Argentina)
+    // 2. Definir horarios (Ajuste de objeto Date)
     const startTime = new Date(reserva.horarios_disponibles.dia_hora);
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
+
+    // --- MEJORA: Formateo de fecha forzado para Argentina (Soluciona el error de las 3hs en el mail) ---
+    const fechaLegible = startTime.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
 
     // 3. Insertar en Google Calendar
     try {
@@ -34,8 +45,14 @@ export async function POST(request: Request) {
         requestBody: {
           summary: `${reserva.servicios.nombre} - ${reserva.nombre_cliente}`,
           description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSeña: $${reserva.monto_senia}`,
-          start: { dateTime: startTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
-          end: { dateTime: endTime.toISOString(), timeZone: 'America/Argentina/Buenos_Aires' },
+          start: { 
+            dateTime: startTime.toISOString(), 
+            timeZone: 'America/Argentina/Buenos_Aires' 
+          },
+          end: { 
+            dateTime: endTime.toISOString(), 
+            timeZone: 'America/Argentina/Buenos_Aires' 
+          },
         },
       });
       console.log('Calendar OK');
@@ -43,8 +60,7 @@ export async function POST(request: Request) {
       console.error('Error Calendar:', calErr);
     }
 
-    // 4. URGENTE: BLOQUEO DE HORARIO EN SUPABASE
-    // Buscamos el ID en todas las ubicaciones posibles del objeto reserva
+    // 4. BLOQUEO DE HORARIO EN SUPABASE
     const idHorario = reserva.horario_id || reserva.id_horario || reserva.horarios_disponibles?.id;
 
     if (idHorario) {
@@ -53,7 +69,7 @@ export async function POST(request: Request) {
         .from('horarios_disponibles')
         .update({ estado: 'reservado' }) 
         .eq('id', idHorario)
-        .select(); // El select nos confirma si realmente encontró la fila
+        .select();
       
       if (dbError) {
         console.error('Error de base de datos al bloquear:', dbError.message);
@@ -62,23 +78,24 @@ export async function POST(request: Request) {
       } else {
         console.warn('No se encontró el horario con ID:', idHorario, 'para bloquear.');
       }
-    } else {
-      console.error('No se encontró ID de horario en el objeto reserva para bloquear.');
     }
 
-    // 5. Notificación por Email
+    // 5. Notificación por Email (Usando la fecha formateada sin desfase)
     try {
       await resend.emails.send({
         from: 'Tekila Nails <onboarding@resend.dev>',
         to: process.env.EMAIL_ROCIO || '',
         subject: `Nueva Reserva: ${reserva.nombre_cliente}`,
         html: `
-          <h1>Nuevo turno confirmado</h1>
-          <p><strong>Cliente:</strong> ${reserva.nombre_cliente}</p>
-          <p><strong>Servicio:</strong> ${reserva.servicios.nombre}</p>
-          <p><strong>Fecha:</strong> ${startTime.toLocaleDateString('es-AR')} a las ${startTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}hs</p>
-          <hr />
-          <p>El turno ya fue agendado y el horario se marcó como reservado.</p>
+          <div style="font-family: sans-serif; color: #333;">
+            <h1 style="color: #d946ef;">¡Nuevo turno confirmado!</h1>
+            <p><strong>Cliente:</strong> ${reserva.nombre_cliente}</p>
+            <p><strong>Servicio:</strong> ${reserva.servicios.nombre}</p>
+            <p><strong>Fecha y Hora:</strong> ${fechaLegible} hs</p>
+            <p><strong>WhatsApp:</strong> ${reserva.whatsapp_cliente}</p>
+            <hr />
+            <p style="font-size: 12px; color: #666;">El turno ya fue agendado y el horario se bloqueó en la web automáticamente.</p>
+          </div>
         `
       });
     } catch (mailErr) {
