@@ -13,7 +13,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
   try {
     const { reserva } = await request.json();
-    console.log('Datos recibidos en API:', reserva);
+    
+    // LOG DE DIAGNÓSTICO 1: Ver qué llega del frontend
+    console.log('--- DIAGNÓSTICO RESERVA ---');
+    console.log('Estructura completa:', JSON.stringify(reserva, null, 2));
 
     // 1. Configuración OAuth2
     const oauth2Client = new google.auth.OAuth2(
@@ -23,11 +26,11 @@ export async function POST(request: Request) {
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // --- MEJORA DE COMPATIBILIDAD: Buscamos la fecha en cualquier ubicación posible ---
+    // 2. Definir horarios con compatibilidad total
     const fechaRaw = reserva.horarios_disponibles?.dia_hora || reserva.dia_hora;
     
     if (!fechaRaw) {
-        console.error("Error: No se encontró la fecha en el objeto reserva");
+        console.error("❌ ERROR: No hay fecha en el objeto");
         return NextResponse.json({ error: "Fecha no encontrada" }, { status: 400 });
     }
 
@@ -44,15 +47,16 @@ export async function POST(request: Request) {
       hour12: false
     });
 
-    // 3. Insertar en Google Calendar
+    // 3. Insertar en Google Calendar con REPORTE DE ERRORES DETALLADO
     try {
-      await calendar.events.insert({
+      console.log('--- INTENTANDO INSERTAR EN GOOGLE ---');
+      const calRes = await calendar.events.insert({
         calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
         requestBody: {
-          summary: `${reserva.servicios?.nombre || 'Servicio'} - ${reserva.nombre_cliente}`,
+          summary: `✨ ${reserva.servicios?.nombre || 'Servicio'} - ${reserva.nombre_cliente}`,
           description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSeña: $${reserva.monto_senia}`,
           start: { 
-            dateTime: fechaRaw, 
+            dateTime: startTime.toISOString(), 
             timeZone: 'America/Argentina/Buenos_Aires' 
           },
           end: { 
@@ -61,19 +65,23 @@ export async function POST(request: Request) {
           },
         },
       });
-      console.log('Calendar OK');
+      console.log('✅ GOOGLE CALENDAR OK: ID del evento', calRes.data.id);
     } catch (calErr: any) {
-      console.error('Error Calendar:', calErr.response?.data || calErr.message);
+      // ESTO NOS DARÁ LA RESPUESTA REAL DE GOOGLE (Permisos, ID de calendario mal, etc)
+      console.error('❌ ERROR DETALLADO DE GOOGLE CALENDAR:');
+      console.error('Status:', calErr.response?.status);
+      console.error('Data:', JSON.stringify(calErr.response?.data, null, 2));
+      console.error('Mensaje:', calErr.message);
     }
 
-    // 4. BLOQUEO DE HORARIO (Búsqueda flexible del ID)
+    // 4. Bloqueo de horario (Búsqueda de ID flexible)
     const idHorario = reserva.horario_id || reserva.horarios_disponibles?.id || reserva.id_horario;
-
     if (idHorario) {
       await supabaseAdmin
         .from('horarios_disponibles')
         .update({ estado: 'reservado' }) 
         .eq('id', idHorario);
+      console.log('Base de datos: Horario bloqueado');
     }
 
     // 5. Notificación por Email
@@ -94,6 +102,7 @@ export async function POST(request: Request) {
           </div>
         `
       });
+      console.log('Email enviado');
     } catch (mailErr) {
       console.error('Error Mail:', mailErr);
     }
@@ -101,7 +110,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
 
   } catch (error: any) {
-    console.error('Error crítico en la API:', error);
+    console.error('--- ERROR CRÍTICO EN API ---');
+    console.error(error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
