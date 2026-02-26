@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Lock, X } from 'lucide-react';
+import { Lock, X, ExternalLink } from 'lucide-react'; // Agregamos ExternalLink
+import Link from 'next/link'; // Importamos Link de Next.js
 import ReservasTab from './components/ReservasTab';
 import ServiciosTab from './components/ServiciosTab';
 import HorariosTab from './components/HorariosTab';
@@ -71,7 +72,7 @@ export default function AdminPage() {
     if (errN || errP) return;
 
     setLoading(true);
-    let foto_url = editId ? servicios.find((s:any) => s.id === editId)?.foto_url : "";
+    let foto_url = editId ? servicios.find((s: any) => s.id === editId)?.foto_url : "";
     if (foto) {
       const fileName = `${Math.random()}.${foto.name.split('.').pop()}`;
       const { data: uploadData } = await supabase.storage.from('fotos-servicios').upload(fileName, foto);
@@ -120,7 +121,19 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white p-6 md:p-12">
       <header className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div><h1 className="text-3xl italic tracking-tighter">Admin Tekila</h1></div>
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl italic tracking-tighter">Admin Tekila</h1>
+          {/* BOTÓN VER WEB */}
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-900 rounded-full text-[9px] uppercase tracking-tighter hover:bg-fuchsia-500 hover:text-white transition-all group"
+          >
+            Ver Web
+            <ExternalLink size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </Link>
+        </div>
+
         <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-full">
           {['reservas', 'servicios', 'horarios'].map((t) => (
             <button key={t} onClick={() => { setTab(t as any); cancelarEdicion(); }} className={`px-6 py-2 rounded-full text-[10px] uppercase tracking-widest transition-all ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-sm font-bold text-fuchsia-500' : 'text-zinc-400'}`}>{t}</button>
@@ -131,15 +144,16 @@ export default function AdminPage() {
       <main className="max-w-4xl mx-auto">
         {tab === 'reservas' && <ReservasTab reservas={reservas} />}
         {tab === 'servicios' && (
-          <ServiciosTab 
-            {...{servicios, nuevoServicio, setNuevoServicio, errores, setErrores, loading, editId, guardarServicio, prepararEdicion, cancelarEdicion, setFoto, foto}} 
-            borrarServicio={async (id: any) => { if(confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', id); fetchData(); }}}
+          <ServiciosTab
+            {...{ servicios, nuevoServicio, setNuevoServicio, errores, setErrores, loading, editId, guardarServicio, prepararEdicion, cancelarEdicion, setFoto, foto }}
+            borrarServicio={async (id: any) => { if (confirm("¿Borrar?")) { await supabase.from('servicios').delete().eq('id', id); fetchData(); } }}
           />
         )}
         {tab === 'horarios' && (
-          <HorariosTab 
-            {...{horarios, nuevoHorario, setNuevoHorario, guardarHorario, editId, setEditId}} 
-            borrarHorario={async (id: any) => { if(confirm("¿Borrar?")) { await supabase.from('horarios_disponibles').delete().eq('id', id); fetchData(); }}}
+          <HorariosTab
+            {...{ horarios, nuevoHorario, setNuevoHorario, guardarHorario, editId, setEditId }}
+            fetchData={fetchData}
+            borrarHorario={async (id: any) => { if (confirm("¿Borrar?")) { await supabase.from('horarios_disponibles').delete().eq('id', id); fetchData(); } }}
           />
         )}
       </main>

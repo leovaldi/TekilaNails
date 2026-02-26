@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       const calRes = await calendar.events.insert({
         calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
         requestBody: {
-          summary: `✨ ${reserva.servicios?.nombre || 'Servicio'} - ${reserva.nombre_cliente}`,
+          summary: `${reserva.servicios?.nombre || 'Servicio'} - ${reserva.nombre_cliente}`,
           description: `Cliente: ${reserva.nombre_cliente}\nWhatsApp: ${reserva.whatsapp_cliente}\nSeña: $${reserva.monto_senia}`,
           start: { 
             dateTime: startTime.toISOString(), 
