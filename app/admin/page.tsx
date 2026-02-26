@@ -142,7 +142,7 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-4xl mx-auto">
-        {tab === 'reservas' && <ReservasTab reservas={reservas} />}
+        {tab === 'reservas' && <ReservasTab reservas={reservas} fetchData={fetchData} />}
         {tab === 'servicios' && (
           <ServiciosTab
             {...{ servicios, nuevoServicio, setNuevoServicio, errores, setErrores, loading, editId, guardarServicio, prepararEdicion, cancelarEdicion, setFoto, foto }}
