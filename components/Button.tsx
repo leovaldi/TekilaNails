@@ -5,29 +5,38 @@ interface ButtonProps {
   text: string;
   onClick?: () => void;
   variant?: 'primary' | 'outline';
-  disabled?: boolean; // 1. Agregamos la propiedad aquí
+  disabled?: boolean;
+  type?: 'button' | 'submit'; // Agregamos tipo por si se usa en formularios
 }
 
-export const PrimaryButton = ({ 
-  text, 
-  onClick, 
-  variant = 'primary', 
-  disabled = false // 2. Le damos un valor por defecto
+export const PrimaryButton = ({
+  text,
+  onClick,
+  variant = 'primary',
+  disabled = false,
+  type = 'button'
 }: ButtonProps) => {
-  
+
+  // Estilos adaptados al modo automático y estética de autor
   const styles = {
-    primary: disabled 
-      ? "bg-zinc-200 text-zinc-400 cursor-not-allowed" // Estilo cuando está desactivado
-      : "bg-black text-white hover:bg-zinc-800",
-    outline: "bg-transparent border border-black text-black hover:bg-black hover:text-white"
+    primary: disabled
+      ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed shadow-none"
+      : "bg-foreground text-background hover:opacity-90 shadow-lg shadow-black/5 dark:shadow-white/5",
+    outline: "bg-transparent border border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-foreground hover:text-background"
   };
 
   return (
     <motion.button
-      whileTap={disabled ? {} : { scale: 0.98 }} // Evitamos la animación si está desactivado
-      onClick={disabled ? undefined : onClick} // Evitamos el click si está desactivado
-      disabled={disabled} // 3. Pasamos el atributo nativo al botón
-      className={`w-full py-4 px-8 uppercase tracking-[0.2em] text-[10px] font-bold transition-all duration-300 ${styles[variant]}`}
+      type={type}
+      whileTap={disabled ? {} : { scale: 0.97 }}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`
+        w-full py-5 px-8 rounded-full 
+        uppercase tracking-[0.4em] text-[9px] font-black 
+        transition-all duration-500 
+        ${styles[variant]}
+      `}
     >
       {text}
     </motion.button>
