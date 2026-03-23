@@ -70,14 +70,14 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
   return (
     <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500 flex items-center gap-2">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-tekila-pink flex items-center gap-2">
           <CalendarIcon size={14} /> Hoja de Ruta / Reservas
         </h2>
 
         {seleccionados.length > 0 && (
           <button
             onClick={() => eliminarReservas(seleccionados)}
-            className="px-4 py-2 bg-fuchsia-500 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 animate-in fade-in zoom-in duration-200 shadow-lg shadow-fuchsia-500/20"
+            className="px-4 py-2 bg-tekila-pink text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 animate-in fade-in zoom-in duration-200 shadow-lg shadow-tekila-pink/20"
           >
             <UserCheck size={14} /> Confirmar Selección ({seleccionados.length})
           </button>
@@ -96,7 +96,7 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                 className="w-full px-6 py-5 flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
               >
                 <div className="flex items-center gap-4 text-left">
-                  <div className="w-10 h-10 bg-fuchsia-50 dark:bg-fuchsia-500/10 rounded-xl flex items-center justify-center text-fuchsia-500 font-bold italic">
+                  <div className="w-10 h-10 bg-tekila-pink/10 rounded-xl flex items-center justify-center text-tekila-pink font-bold italic">
                     {dia.split('-')[2]}
                   </div>
                   <div>
@@ -126,9 +126,9 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                               if (seleccionados.includes(r.id)) setSeleccionados(seleccionados.filter(id => id !== r.id));
                               else setSeleccionados([...seleccionados, r.id]);
                             }}
-                            className="text-zinc-200 hover:text-fuchsia-500 transition-colors"
+                            className="text-zinc-200 hover:text-tekila-pink transition-colors"
                           >
-                            {seleccionados.includes(r.id) ? <CheckSquare size={20} className="text-fuchsia-500" /> : <Square size={20} />}
+                            {seleccionados.includes(r.id) ? <CheckSquare size={20} className="text-tekila-pink" /> : <Square size={20} />}
                           </button>
 
                           <div className="flex-1">
@@ -158,7 +158,7 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                           </a>
                           <button
                             onClick={() => eliminarReservas([r.id])}
-                            className="flex items-center gap-2 px-5 py-3 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[9px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-fuchsia-500 transition-all"
+                            className="flex items-center gap-2 px-5 py-3 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[9px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-tekila-pink transition-all"
                           >
                             <UserCheck size={14} /> Asistió
                           </button>

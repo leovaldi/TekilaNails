@@ -1,7 +1,8 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { ChevronLeft, ChevronRight, Camera, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Camera, Calendar, ChevronDown } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
 
 interface Servicio {
@@ -21,9 +22,9 @@ export function CarruselServicios({
   loading: boolean,
   onSelect: (s: Servicio) => void
 }) {
-  // CONFIGURACIÓN LINEAL PARA MÁXIMA ESTABILIDAD
+  // CONFIGURACIÓN PARA MÁXIMA ESTABILIDAD
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false, // Eliminamos el loop infinito para evitar el bug
+    loop: false,
     align: 'center',
     skipSnaps: false,
     dragFree: false
@@ -102,7 +103,7 @@ export function CarruselServicios({
                       <h3 className="text-2xl md:text-3xl font-light italic tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
                         {s.nombre}
                       </h3>
-                      <div className="bg-fuchsia-500 px-3 py-1 rounded-full shrink-0 shadow-lg shadow-fuchsia-500/20">
+                      <div className="bg-tekila-pink px-3 py-1 rounded-full shrink-0 shadow-lg shadow-tekila-pink/20">
                         <span className="text-white font-bold text-base leading-none">${s.precio.toLocaleString()}</span>
                       </div>
                     </div>
@@ -114,10 +115,10 @@ export function CarruselServicios({
 
                     <div className="mt-auto">
                       <button
-                        onClick={() => onSelect(s)}
-                        className="w-full py-5 bg-black dark:bg-white text-white dark:text-black rounded-[25px] text-[10px] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all active:scale-95"
+                        onClick={() => isSelected && onSelect(s)}
+                        className={`w-full py-5 rounded-[25px] text-[10px] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all ${isSelected ? 'bg-black dark:bg-white text-white dark:text-black active:scale-95 hover:text-tekila-pink dark:hover:text-tekila-pink cursor-pointer' : 'bg-transparent text-transparent cursor-default select-none'}`}
                       >
-                        <Calendar size={16} className="text-fuchsia-500" />
+                        <Calendar size={16} className={`${isSelected ? 'text-tekila-pink' : 'text-transparent'}`} />
                         Seleccionar
                       </button>
                     </div>
@@ -130,41 +131,56 @@ export function CarruselServicios({
       </div>
 
       {/* CONTROLES DE NAVEGACIÓN */}
-      <div className="mt-16 flex flex-col items-center gap-10">
+      <div className="mt-16 flex flex-col items-center gap-10 pb-28 relative">
         {/* Indicadores de progreso */}
         <div className="flex gap-2">
           {servicios.map((_, i) => (
             <div
               key={i}
-              className={`h-[2px] transition-all duration-500 rounded-full ${i === selectedIndex ? 'w-10 bg-fuchsia-500' : 'w-2 bg-zinc-200 dark:bg-zinc-800'}`}
+              className={`h-[2px] transition-all duration-500 rounded-full ${i === selectedIndex ? 'w-10 bg-tekila-pink' : 'w-2 bg-zinc-200 dark:bg-zinc-800'}`}
             />
           ))}
         </div>
 
-        {/* Botones con estado visual deshabilitado */}
+        {/* Botones con relleno y borde (Intuitivos) */}
         <div className="flex items-center gap-8">
           <button
             onClick={scrollPrev}
             disabled={!canScrollPrev}
-            className={`group flex items-center gap-4 transition-all ${!canScrollPrev ? 'opacity-10 cursor-not-allowed' : 'opacity-100'}`}
+            className={`group flex items-center gap-4 transition-all px-6 py-3 rounded-full border-2 
+              ${!canScrollPrev
+                ? 'opacity-20 cursor-not-allowed border-zinc-200 dark:border-zinc-800'
+                : 'opacity-100 border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black active:scale-95 shadow-lg'}`}
           >
-            <div className="w-10 h-10 rounded-full border border-zinc-100 dark:border-zinc-800 flex items-center justify-center group-hover:border-fuchsia-500">
-              <ChevronLeft size={18} className="text-zinc-400 group-hover:text-fuchsia-500" />
-            </div>
-            <span className="text-[9px] uppercase tracking-[0.5em] text-zinc-400 font-bold">Volver</span>
+            <ChevronLeft size={18} />
+            <span className="text-[9px] uppercase tracking-[0.5em] font-bold">Volver</span>
           </button>
 
           <button
             onClick={scrollNext}
             disabled={!canScrollNext}
-            className={`group flex items-center gap-4 transition-all ${!canScrollNext ? 'opacity-10 cursor-not-allowed' : 'opacity-100'}`}
+            className={`group flex items-center gap-4 transition-all px-6 py-3 rounded-full border-2
+              ${!canScrollNext
+                ? 'opacity-20 cursor-not-allowed border-zinc-200 dark:border-zinc-800'
+                : 'opacity-100 border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black active:scale-95 shadow-lg'}`}
           >
-            <span className="text-[9px] uppercase tracking-[0.5em] text-zinc-400 font-bold">Siguiente</span>
-            <div className="w-10 h-10 rounded-full border border-zinc-100 dark:border-zinc-800 flex items-center justify-center group-hover:border-fuchsia-500">
-              <ChevronRight size={18} className="text-zinc-400 group-hover:text-fuchsia-500" />
-            </div>
+            <span className="text-[9px] uppercase tracking-[0.5em] font-bold">Siguiente</span>
+            <ChevronRight size={18} />
           </button>
         </div>
+
+        {/* INDICADOR INFERIOR (Igual al Hero) */}
+        <motion.div
+          onClick={() => document.getElementById('methodology-section')?.scrollIntoView({ behavior: 'smooth' })}
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group z-20"
+        >
+          <span className="text-[8px] uppercase tracking-[0.5em] text-zinc-400 group-hover:text-tekila-pink font-serif italic">
+            Deslizar
+          </span>
+          <ChevronDown size={14} className="text-zinc-300 group-hover:text-tekila-pink" />
+        </motion.div>
       </div>
     </div>
   )

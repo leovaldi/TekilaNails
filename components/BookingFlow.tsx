@@ -138,7 +138,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
         <div className="space-y-6 animate-in fade-in duration-500">
           <div className="flex justify-between items-end">
             <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
-              <Calendar size={14} className="text-fuchsia-500" /> 1. Disponibilidad
+              <Calendar size={14} className="text-tekila-pink" /> 1. Disponibilidad
             </label>
             <span className="text-[9px] text-zinc-300 italic font-medium uppercase tracking-tighter">Maipú, Mendoza</span>
           </div>
@@ -159,17 +159,17 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                     key={h.id}
                     onClick={() => setSeleccion({ ...seleccion, horarioId: h.id, label: `${f.dia} - ${f.hora} hs` })}
                     className={`flex justify-between items-center p-5 rounded-2xl transition-all duration-300 border ${isSelected
-                        ? 'border-fuchsia-500 bg-fuchsia-50/30 dark:bg-fuchsia-500/5 ring-1 ring-fuchsia-500'
+                        ? 'border-tekila-pink bg-tekila-pink/10 dark:bg-tekila-pink/5 ring-1 ring-tekila-pink'
                         : 'border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700'
                       }`}
                   >
                     <div className="text-left">
-                      <p className={`text-[10px] uppercase tracking-wider font-black mb-1 ${isSelected ? 'text-fuchsia-600' : 'text-zinc-400'}`}>
+                      <p className={`text-[10px] uppercase tracking-wider font-black mb-1 ${isSelected ? 'text-tekila-pink' : 'text-zinc-400'}`}>
                         {f.dia}
                       </p>
                       <p className="text-lg font-light italic leading-none">{f.hora} hs</p>
                     </div>
-                    {isSelected && <CheckCircle2 size={20} className="text-fuchsia-500" />}
+                    {isSelected && <CheckCircle2 size={20} className="text-tekila-pink" />}
                   </button>
                 )
               })
@@ -195,24 +195,24 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
           {/* SECCIÓN RETIRO PREVIO */}
           <div className="space-y-4">
             <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
-              <Trash2 size={14} className="text-fuchsia-500" /> Adicional Necesario
+              <Trash2 size={14} className="text-tekila-pink" /> Adicional Necesario
             </label>
             <button
               onClick={() => setConRetiro(!conRetiro)}
               className={`w-full p-5 rounded-[25px] border-2 transition-all duration-500 flex justify-between items-center group ${conRetiro
-                  ? 'border-fuchsia-500 bg-fuchsia-500/5 shadow-lg shadow-fuchsia-500/10'
+                  ? 'border-tekila-pink bg-tekila-pink/5 shadow-lg shadow-tekila-pink/10'
                   : 'border-zinc-100 dark:border-zinc-800 hover:border-zinc-200'
                 }`}
             >
               <div className="text-left pr-4">
-                <p className={`text-sm font-bold transition-colors ${conRetiro ? 'text-fuchsia-600' : 'text-zinc-800 dark:text-zinc-100'}`}>
+                <p className={`text-sm font-bold transition-colors ${conRetiro ? 'text-tekila-pink' : 'text-zinc-800 dark:text-zinc-100'}`}>
                   ¿Traés producto de otro salón?
                 </p>
                 <p className="text-[10px] text-zinc-400 italic font-light leading-tight mt-1">
                   Seleccioná esta opción si necesitás retiro previo.
                 </p>
               </div>
-              <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${conRetiro ? 'bg-fuchsia-500 border-fuchsia-500 scale-110' : 'border-zinc-200 dark:border-zinc-700'}`}>
+              <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${conRetiro ? 'bg-tekila-pink border-tekila-pink scale-110' : 'border-zinc-200 dark:border-zinc-700'}`}>
                 {conRetiro && <CheckCircle2 size={14} className="text-white" />}
               </div>
             </button>
@@ -221,7 +221,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
           {/* DATOS PERSONALES */}
           <div className="space-y-5">
             <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
-              <User size={14} className="text-fuchsia-500" /> Datos de contacto
+              <User size={14} className="text-tekila-pink" /> Datos de contacto
             </label>
 
             <div className="space-y-3">
@@ -230,7 +230,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 maxLength={35}
                 placeholder="Nombre y Apellido completo"
                 className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                  } focus:border-fuchsia-500`}
+                  } focus:border-tekila-pink`}
                 value={seleccion.nombre}
                 onChange={(e) => { setSeleccion({ ...seleccion, nombre: e.target.value }); setErrores({ ...errores, nombre: false }) }}
               />
@@ -240,7 +240,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 maxLength={15}
                 placeholder="WhatsApp (Ej: 261 555 6677)"
                 className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                  } focus:border-fuchsia-500`}
+                  } focus:border-tekila-pink`}
                 value={seleccion.whatsapp}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, '');
@@ -262,10 +262,10 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
           <div className="bg-zinc-50 dark:bg-zinc-900/80 p-6 rounded-[30px] border border-zinc-100 dark:border-zinc-800">
             <div className="flex justify-between items-center mb-1">
               <span className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400">Total Seña</span>
-              <span className="text-2xl font-black text-fuchsia-600">${totalAPagarAhora.toLocaleString()}</span>
+              <span className="text-2xl font-black text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
             </div>
             <div className="flex items-center gap-2 text-[9px] text-zinc-400 italic">
-              <CheckCircle2 size={10} className="text-fuchsia-500" />
+              <CheckCircle2 size={10} className="text-tekila-pink" />
               <p>Turno: {seleccion.label}</p>
             </div>
           </div>
@@ -278,7 +278,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             />
             <button
               onClick={() => setStep(1)}
-              className="flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.4em] text-zinc-400 hover:text-fuchsia-500 transition-colors font-black"
+              className="flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.4em] text-zinc-400 hover:text-tekila-pink transition-colors font-black"
             >
               <ArrowLeft size={12} /> Volver a horarios
             </button>

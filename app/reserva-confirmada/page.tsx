@@ -86,12 +86,12 @@ function ContenidoReserva() {
       <div className="max-w-md space-y-6">
         {status === 'procesando' ? (
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="animate-spin text-fuchsia-500" size={48} />
+            <Loader2 className="animate-spin text-tekila-pink" size={48} />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">Verificando Turno...</p>
           </div>
         ) : (
           <div className="space-y-8 animate-in fade-in zoom-in duration-700">
-            <CheckCircle size={60} className="text-fuchsia-500 mx-auto stroke-[1px]" />
+            <CheckCircle size={60} className="text-tekila-pink mx-auto stroke-[1px]" />
             <div>
               <h1 className="text-4xl italic font-light tracking-tighter mb-4">Todo listo</h1>
               <p className="text-sm text-zinc-500 italic leading-relaxed">
@@ -110,7 +110,7 @@ function ContenidoReserva() {
 
 export default function ReservaConfirmada() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-fuchsia-500" size={48} /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-tekila-pink" size={48} /></div>}>
       <ContenidoReserva />
     </Suspense>
   )

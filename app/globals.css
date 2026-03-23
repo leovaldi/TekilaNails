@@ -1,27 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
+  /* --- PALETA TEKILA NAILS --- */
+  --color-tekila-dark: #000000;
+  --color-tekila-pink: #FF0080; /* Rosa vibrante */
+  --color-tekila-light: #FF99CC; /* Rosa claro pastel */
+  --color-tekila-white: #FFFFFF;
+  --color-tekila-gray: #666666;
+
+  /* --- VARIABLES DE SISTEMA --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-playfair);
+}
+
+:root {
+  /* Modo Claro: Fondo blanco puro y texto muy oscuro */
+  --background: #FFFFFF;
+  --foreground: #111111;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Modo Oscuro: Negro puro y texto blanco */
+    --background: #000000;
+    --foreground: #FFFFFF;
   }
 }
 
+/* --- ESTILOS BASE --- */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Tipografía de Títulos para usar el font alternativo */
+h1, h2, h3, h4, .font-serif, .italic.font-light {
+  font-family: var(--font-heading), serif;
+}
+
+/* Personalización del scrollbar para que sea minimalista y coincida con la paleta */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF99CC;
+  /* Rosa claro */
+  border-radius: 10px;
 }
