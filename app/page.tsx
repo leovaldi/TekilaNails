@@ -75,7 +75,7 @@ export default function Home() {
             <h2 className="text-[10px] uppercase tracking-[0.5em] text-tekila-pink font-bold italic">
               Selecciona tu Servicio
             </h2>
-            <p className="text-4xl md:text-5xl italic tracking-tighter font-light">
+            <p className="text-3xl sm:text-4xl md:text-5xl italic tracking-tighter font-light">
               Elegí tu próximo estilo
             </p>
           </div>
@@ -106,11 +106,11 @@ export default function Home() {
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-background w-full max-w-lg p-10 relative overflow-y-auto max-h-[90vh] no-scrollbar shadow-2xl rounded-[40px] border border-zinc-100 dark:border-zinc-800"
+              className="bg-background w-full max-w-lg p-6 md:p-10 relative overflow-y-auto max-h-[90vh] no-scrollbar shadow-2xl rounded-[40px] border border-zinc-100 dark:border-zinc-800"
             >
               <button
                 onClick={() => { setShowModal(false); setRetiroSeleccionado(null); }}
-                className="absolute top-8 right-8 text-zinc-400 hover:text-tekila-pink transition-colors"
+                className="absolute top-6 right-6 md:top-8 md:right-8 text-zinc-400 hover:text-tekila-pink transition-colors"
               >
                 ✕
               </button>
@@ -153,7 +153,7 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between items-center pt-6 border-t border-zinc-200 dark:border-zinc-800">
                     <span className="font-bold uppercase text-[10px] tracking-widest">Seña + Gestión:</span>
-                    <span className="text-4xl font-light text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
+                    <span className="text-3xl md:text-4xl font-light text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
                   </div>
                 </div>
 

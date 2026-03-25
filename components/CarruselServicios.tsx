@@ -77,7 +77,7 @@ export function CarruselServicios({
                   ${isSelected ? 'opacity-100 scale-100' : 'opacity-20 scale-95 blur-[1px]'}`}
               >
                 {/* CARD REFINADA */}
-                <div className="bg-white dark:bg-zinc-950 p-6 md:p-8 rounded-[45px] border border-zinc-100 dark:border-zinc-800 shadow-2xl h-full flex flex-col">
+                <div className="bg-white dark:bg-zinc-950 p-5 sm:p-6 md:p-8 rounded-[45px] border border-zinc-100 dark:border-zinc-800 shadow-2xl h-full flex flex-col">
 
                   {/* IMAGEN */}
                   <div className="relative aspect-[1/1.15] mb-8 overflow-hidden rounded-[35px] bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-100 dark:ring-zinc-800">
@@ -100,7 +100,7 @@ export function CarruselServicios({
                   <div className="flex flex-col flex-grow px-1">
                     {/* TÍTULO Y PRECIO */}
                     <div className="flex justify-between items-start gap-4 mb-6">
-                      <h3 className="text-2xl md:text-3xl font-light italic tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-light italic tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
                         {s.nombre}
                       </h3>
                       <div className="bg-tekila-pink px-3 py-1 rounded-full shrink-0 shadow-lg shadow-tekila-pink/20">

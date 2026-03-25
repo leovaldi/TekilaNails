@@ -61,7 +61,7 @@ export function Methodology() {
             >
                 <div className="text-center mb-16 md:mb-20">
                     {/* TÍTULO CAMBIADO A POLÍTICAS */}
-                    <h2 className="text-3xl md:text-5xl font-light tracking-tighter mb-4 text-zinc-900 dark:text-white">
+                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-light tracking-tighter mb-4 text-zinc-900 dark:text-white">
                         Políticas Tekila
                     </h2>
 
@@ -111,7 +111,7 @@ export function Methodology() {
                         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_180deg,#FF0080_220deg,#FF99CC_260deg,#FF0080_300deg,#FFFFFF_340deg,#000_360deg)] animate-[spin_8s_linear_infinite] opacity-40 group-hover:opacity-100 transition-opacity duration-700" />
 
                         {/* FONDO INTERIOR MODIFICADO: Ultra-sutil y profundo --- */}
-                        <div className="relative flex flex-col items-center gap-10 bg-background p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
+                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
 
                             {/* Gradientes radiales estáticos: AJUSTADOS para ser MÍNIMOS --- */}
                             <div className="absolute inset-0 opacity-10 dark:opacity-20 bg-[radial-gradient(circle_at_50%_50%,#FF0080_0%,#FF99CC_30%,transparent_70%)] blur-2xl z-0" />
@@ -120,7 +120,7 @@ export function Methodology() {
 
                             {/* Contenido (relative z-10 para estar sobre el fondo) */}
                             <div className="text-center relative z-10 space-y-3">
-                                <h3 className="text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">Manifestando tu próximo set🔥</h3>
+                                <h3 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">Manifestando tu próximo set🔥</h3>
                                 <p className="text-[10px] md:text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Cada set es un mood. Descubrí tu próximo diseño en nuestro IG.</p>
                             </div>
 
@@ -145,7 +145,7 @@ export function Methodology() {
                         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_180deg,#FF99CC_220deg,#FF0080_260deg,#FF99CC_300deg,#FFFFFF_340deg,#000_360deg)] animate-[spin_8s_linear_infinite] opacity-40 group-hover:opacity-100 transition-opacity duration-700" />
 
                         {/* FONDO INTERIOR MODIFICADO --- */}
-                        <div className="relative flex flex-col items-center gap-10 bg-background p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
+                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
 
                             {/* Gradientes radiales estáticos: AJUSTADOS para ser MÍNIMOS --- */}
                             <div className="absolute inset-0 opacity-10 dark:opacity-20 bg-[radial-gradient(circle_at_50%_50%,#FF99CC_0%,#FF0080_30%,transparent_70%)] blur-2xl z-0" />
@@ -154,7 +154,7 @@ export function Methodology() {
 
                             {/* Contenido (relative z-10 para estar sobre el fondo) */}
                             <div className="text-center relative z-10 space-y-3">
-                                <h3 className="text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">¿Team procesos?🎬</h3>
+                                <h3 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">¿Team procesos?🎬</h3>
                                 <p className="text-[10px] md:text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Tutoriales rápidos y todo el vibe del nail art en TikTok.</p>
                             </div>
 

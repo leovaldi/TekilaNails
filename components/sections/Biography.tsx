@@ -81,7 +81,7 @@ export function Biography() {
 
                 {/* Texto */}
                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                    <h2 className="text-3xl md:text-5xl font-light font-serif italic text-foreground mb-6 leading-tight">
+                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-light font-serif italic text-foreground mb-6 leading-tight">
                         Rocío Mena, <span className="text-tekila-pink">Especialista en Nail Art</span>
                     </h2>
 
