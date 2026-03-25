@@ -14,29 +14,39 @@ const sparkleVariants: Variants = {
 
 export function Biography() {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+    const [biografia, setBiografia] = useState<string>('') // Estado para la biografía
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        async function loadProfileImage() {
+        async function loadProfileData() {
             try {
-                // 1. Obtenemos la URL pública del archivo fijo en la carpeta biografia
-                const { data } = supabase.storage
+                // 1. Carga de imagen
+                const { data: imgData } = supabase.storage
                     .from('fotos-servicios')
                     .getPublicUrl('biografia/foto-perfil.jpg')
 
-                if (data?.publicUrl) {
-                    // 2. Aplicamos el Cache Buster (?t=...) para que el navegador 
-                    // siempre descargue la versión más reciente si fue reemplazada
-                    setAvatarUrl(`${data.publicUrl}?t=${new Date().getTime()}`)
+                if (imgData?.publicUrl) {
+                    setAvatarUrl(`${imgData.publicUrl}?t=${new Date().getTime()}`)
+                }
+
+                // 2. Carga de biografía desde la base de datos
+                const { data: bioData } = await supabase
+                    .from('perfil')
+                    .select('biografia')
+                    .eq('id', 1)
+                    .single()
+
+                if (bioData) {
+                    setBiografia(bioData.biografia)
                 }
             } catch (error) {
-                console.error('Error cargando imagen de perfil:', error)
+                console.error('Error cargando datos de perfil:', error)
             } finally {
                 setLoading(false)
             }
         }
 
-        loadProfileImage()
+        loadProfileData()
     }, [])
 
     return (
@@ -55,11 +65,9 @@ export function Biography() {
 
                     <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-2 border-tekila-light/30 p-1.5 shadow-2xl bg-white dark:bg-zinc-900 relative">
                         {loading ? (
-                            // Skeleton mientras carga la URL
                             <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-full" />
                         ) : (
                             <Image
-                                // Si no hay avatarUrl por algún error, volvemos al logo por defecto
                                 src={avatarUrl || "/logo.png"}
                                 alt="Rocío Mena"
                                 fill
@@ -79,8 +87,8 @@ export function Biography() {
 
                     <div className="h-[2px] w-20 bg-tekila-pink mb-8 opacity-60"></div>
 
-                    <p className="text-[14px] md:text-base font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-                        Soy Rocío Mena, tengo 22 años y me dedico con pasión al arte de las uñas. Me capacité durante un año en la Academia Amelie y continué mi formación con un perfeccionamiento de seis meses junto a Agustina Becerra. Me encanta este mundo porque me permite ser creativa, cuidar los detalles y hacer que cada persona se sienta linda y segura con sus manos.
+                    <p className="text-[14px] md:text-base font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl whitespace-pre-wrap">
+                        {biografia}
                     </p>
                 </div>
             </motion.div>
