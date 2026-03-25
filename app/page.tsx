@@ -36,7 +36,7 @@ export default function Home() {
       const { data } = await supabase
         .from('servicios')
         .select('*')
-        .order('id', { ascending: false })
+        .order('orden', { ascending: true, nullsFirst: false })
 
       if (data) setServicios(data)
       setLoading(false)
