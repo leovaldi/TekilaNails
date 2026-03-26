@@ -32,7 +32,12 @@ export async function POST(request: Request) {
           failure: `${baseUrl}/`,
           pending: `${baseUrl}/`
         },
-        ...(isLocalhost ? {} : { auto_return: "approved" })
+        external_reference: String(reservaId),
+        payment_methods: {
+          excluded_payment_types: [{ id: "ticket" }], // Solo pagos de acreditación inmediata
+          installments: 1 // Solo 1 cuota para la seña
+        },
+        auto_return: "approved"
       }
     });
 
