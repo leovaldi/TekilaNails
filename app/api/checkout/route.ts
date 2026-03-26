@@ -5,52 +5,43 @@ export async function POST(request: Request) {
   try {
     const { nombreServicio, precioSenia, reservaId } = await request.json();
     const token = process.env.MP_ACCESS_TOKEN?.trim();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // Tu URL de Vercel
+    let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    baseUrl = baseUrl.split('#')[0].trim().replace(/\/$/, ""); // Limpia comentarios y slash final
 
-    if (!token) return NextResponse.json({ error: 'No token' }, { status: 500 });
+    if (!token) return NextResponse.json({ error: 'Falta Token' }, { status: 500 });
     if (!baseUrl) return NextResponse.json({ error: 'Falta NEXT_PUBLIC_BASE_URL' }, { status: 500 });
-
-    // --- CÁLCULO DE RECARGO (7.6%) ---
-    // Cubre el 6.29% de comisión de MP + el IVA sobre esa comisión.
-    const porcentajeRecargo = 0.076; 
-    const precioConRecargo = Math.round(Number(precioSenia) * (1 + porcentajeRecargo));
 
     const client = new MercadoPagoConfig({ accessToken: token });
     const preference = new Preference(client);
-    
-    const result = await preference.create({
+
+    // Versión segura contra el bug de Mercado Pago con localhost y auto_return
+    const isLocalhost = baseUrl.includes("localhost");
+    const response = await preference.create({
       body: {
         items: [
           {
             id: String(reservaId),
-            title: `Seña: ${nombreServicio}`,
+            title: nombreServicio || "Servicio de Manicuría",
             quantity: 1,
-            unit_price: precioConRecargo, // Ahora con el recargo aplicado
+            unit_price: Math.round(Number(precioSenia) * 1.076), // Recargo del 7.6%
             currency_id: 'ARS',
           }
         ],
-        // URLs de retorno según el dominio (Vercel)
         back_urls: {
           success: `${baseUrl}/reserva-confirmada`,
           failure: `${baseUrl}/`,
-          pending: `${baseUrl}/`,
+          pending: `${baseUrl}/`
         },
-        // Retorno automático al aprobarse
-        auto_return: "approved",
-        // Referencia externa para identificar la reserva en la página de éxito
-        external_reference: String(reservaId),
-        // Configuración de métodos de pago
-        payment_methods: {
-          excluded_payment_types: [{ id: "ticket" }], // Solo pagos de acreditación inmediata
-          installments: 1 // Solo 1 cuota para la seña
-        }
+        ...(isLocalhost ? {} : { auto_return: "approved" })
       }
     });
 
-    return NextResponse.json({ init_point: result.init_point });
+    console.log("¡ÉXITO MP!", response.init_point);
+    return NextResponse.json({ init_point: response.init_point });
 
   } catch (error: any) {
-    console.error('ERROR MP:', error);
+    console.error('--- ERROR DETECTADO ---');
+    console.log(JSON.stringify(error, null, 2)); // Esto nos dará el error completo
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

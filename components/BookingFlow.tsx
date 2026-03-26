@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Calendar, User, Phone, AlertCircle, CheckCircle2, Trash2, ArrowLeft } from 'lucide-react'
+import { Calendar, User, AlertCircle, CheckCircle2, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import { PrimaryButton } from './Button'
 
 interface Servicio {
@@ -14,7 +14,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
   const [horarios, setHorarios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [conRetiro, setConRetiro] = useState(false)
+
+  const [expandedMonth, setExpandedMonth] = useState<string | null>(null)
+  const [expandedDay, setExpandedDay] = useState<string | null>(null)
 
   const [errores, setErrores] = useState({ nombre: false, whatsapp: false, msg: '' })
 
@@ -33,16 +35,36 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
         .eq('estado', 'disponible')
         .order('dia_hora', { ascending: true })
 
-      if (data) {
+      if (data && data.length > 0) {
         const ahora = new Date()
         // Filtramos solo turnos futuros
         const futuros = data.filter(h => new Date(h.dia_hora) > ahora)
         setHorarios(futuros)
+
+        // Expandir automáticamente el primer mes y día disponibles fue removido a pedido.
       }
       setLoading(false)
     }
     cargarHorarios()
   }, [])
+
+  const groupedHorarios: Record<string, Record<string, any[]>> = useMemo(() => {
+    return horarios.reduce((acc, h) => {
+      const fecha = new Date(h.dia_hora)
+      const mes = fecha.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
+      let dia = fecha.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })
+      dia = dia.charAt(0).toUpperCase() + dia.slice(1) // Capitalizar primer letra
+      
+      if (!acc[mes]) acc[mes] = {}
+      if (!acc[mes][dia]) acc[mes][dia] = []
+      
+      acc[mes][dia].push({
+        ...h,
+        horaStr: fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
+      })
+      return acc
+    }, {} as Record<string, Record<string, any[]>>)
+  }, [horarios])
 
   const handleFinalizarReserva = async () => {
     const nombreLimpio = seleccion.nombre.trim()
@@ -86,8 +108,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
           whatsapp_cliente: waLimpio,
           monto_senia: totalAPagarAhora,
           estado_pago: 'pendiente',
-          // Asegúrate de tener esta columna en tu DB si quieres trackear el retiro
-          notas: conRetiro ? "Requiere retiro previo de otro salón" : ""
         }])
         .select()
         .single()
@@ -99,7 +119,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombreServicio: `${servicio.nombre}${conRetiro ? ' (+ Retiro)' : ''}`,
+          nombreServicio: servicio.nombre,
           precioSenia: totalAPagarAhora,
           reservaId: reserva.id
         })
@@ -121,15 +141,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
     }
   }
 
-  const formatearFecha = (fechaStr: string) => {
-    const fecha = new Date(fechaStr)
-    return {
-      dia: fecha.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'short' }),
-      // FORZAMOS FORMATO 24HS
-      hora: fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
-    }
-  }
-
   return (
     <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
 
@@ -143,36 +154,70 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             <span className="text-[9px] text-zinc-300 italic font-medium uppercase tracking-tighter">Maipú, Mendoza</span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 max-h-[320px] overflow-y-auto pr-2 no-scrollbar">
+          <div className="flex flex-col gap-4 w-full">
             {loading ? (
               <div className="space-y-3 py-2">
-                {[1, 2, 3, 4].map(i => (
+                {[1, 2, 3].map(i => (
                   <div key={i} className="h-16 bg-zinc-50 dark:bg-zinc-900/50 animate-pulse rounded-2xl" />
                 ))}
               </div>
-            ) : horarios.length > 0 ? (
-              horarios.map((h) => {
-                const f = formatearFecha(h.dia_hora)
-                const isSelected = seleccion.horarioId === h.id
-                return (
-                  <button
-                    key={h.id}
-                    onClick={() => setSeleccion({ ...seleccion, horarioId: h.id, label: `${f.dia} - ${f.hora} hs` })}
-                    className={`flex justify-between items-center p-5 rounded-2xl transition-all duration-300 border ${isSelected
-                        ? 'border-tekila-pink bg-tekila-pink/10 dark:bg-tekila-pink/5 ring-1 ring-tekila-pink'
-                        : 'border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700'
-                      }`}
+            ) : Object.keys(groupedHorarios).length > 0 ? (
+              Object.entries(groupedHorarios as Record<string, Record<string, any[]>>).map(([mes, dias]) => (
+                <div key={mes} className="border border-zinc-100 dark:border-zinc-800/80 rounded-3xl overflow-hidden shadow-sm">
+                  {/* Categoría: Mes */}
+                  <button 
+                    onClick={() => setExpandedMonth(expandedMonth === mes ? null : mes)}
+                    className="w-full p-4 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/80"
                   >
-                    <div className="text-left">
-                      <p className={`text-[10px] uppercase tracking-wider font-black mb-1 ${isSelected ? 'text-tekila-pink' : 'text-zinc-400'}`}>
-                        {f.dia}
-                      </p>
-                      <p className="text-lg font-light italic leading-none">{f.hora} hs</p>
-                    </div>
-                    {isSelected && <CheckCircle2 size={20} className="text-tekila-pink" />}
+                    <span className="text-[11px] uppercase tracking-widest font-black text-tekila-pink capitalize">{mes}</span>
+                    <span className="text-zinc-400">
+                      {expandedMonth === mes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </span>
                   </button>
-                )
-              })
+
+                  {/* Lista de Días */}
+                  {expandedMonth === mes && (
+                    <div className="p-3 bg-background flex flex-col gap-3">
+                      {Object.entries(dias as Record<string, any[]>).map(([dia, turnos]) => (
+                        <div key={dia} className="border border-zinc-100 dark:border-zinc-800/50 rounded-2xl overflow-hidden">
+                          <button
+                            onClick={() => setExpandedDay(expandedDay === dia ? null : dia)}
+                            className="w-full p-4 flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors"
+                          >
+                            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{dia}</span>
+                            <span className="text-zinc-400">
+                              {expandedDay === dia ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </span>
+                          </button>
+
+                          {/* Grilla de Horarios */}
+                          {expandedDay === dia && (
+                            <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-50/50 dark:bg-zinc-900/20 border-t border-zinc-50 dark:border-zinc-800/50">
+                              {turnos.map((h: any) => {
+                                const isSelected = seleccion.horarioId === h.id
+                                return (
+                                  <button
+                                    key={h.id}
+                                    onClick={() => setSeleccion({ ...seleccion, horarioId: h.id, label: `${dia} - ${h.horaStr} hs` })}
+                                    className={`py-3 px-4 rounded-xl transition-all duration-300 border flex justify-center items-center gap-2 ${
+                                      isSelected
+                                        ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]'
+                                        : 'border-zinc-200 dark:border-zinc-700 bg-background hover:border-tekila-pink/50 text-zinc-600 dark:text-zinc-300'
+                                    }`}
+                                  >
+                                    <span className={`text-sm tracking-wide ${isSelected ? 'font-bold' : 'font-medium'}`}>{h.horaStr} hs</span>
+                                    {isSelected && <CheckCircle2 size={16} className="text-white shrink-0" />}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
             ) : (
               <div className="py-12 text-center border border-dashed border-zinc-100 dark:border-zinc-800 rounded-3xl">
                 <p className="text-[10px] uppercase tracking-widest text-zinc-400 italic">No hay turnos disponibles por el momento.</p>
@@ -192,32 +237,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
       {step === 2 && (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
 
-          {/* SECCIÓN RETIRO PREVIO */}
-          <div className="space-y-4">
-            <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
-              <Trash2 size={14} className="text-tekila-pink" /> Adicional Necesario
-            </label>
-            <button
-              onClick={() => setConRetiro(!conRetiro)}
-              className={`w-full p-5 rounded-[25px] border-2 transition-all duration-500 flex justify-between items-center group ${conRetiro
-                  ? 'border-tekila-pink bg-tekila-pink/5 shadow-lg shadow-tekila-pink/10'
-                  : 'border-zinc-100 dark:border-zinc-800 hover:border-zinc-200'
-                }`}
-            >
-              <div className="text-left pr-4">
-                <p className={`text-sm font-bold transition-colors ${conRetiro ? 'text-tekila-pink' : 'text-zinc-800 dark:text-zinc-100'}`}>
-                  ¿Traés producto de otro salón?
-                </p>
-                <p className="text-[10px] text-zinc-400 italic font-light leading-tight mt-1">
-                  Seleccioná esta opción si necesitás retiro previo.
-                </p>
-              </div>
-              <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${conRetiro ? 'bg-tekila-pink border-tekila-pink scale-110' : 'border-zinc-200 dark:border-zinc-700'}`}>
-                {conRetiro && <CheckCircle2 size={14} className="text-white" />}
-              </div>
-            </button>
-          </div>
-
           {/* DATOS PERSONALES */}
           <div className="space-y-5">
             <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
@@ -229,8 +248,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="text"
                 maxLength={35}
                 placeholder="Nombre y Apellido completo"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                  } focus:border-tekila-pink`}
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${
+                  errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
+                } focus:border-tekila-pink`}
                 value={seleccion.nombre}
                 onChange={(e) => { setSeleccion({ ...seleccion, nombre: e.target.value }); setErrores({ ...errores, nombre: false }) }}
               />
@@ -239,8 +259,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="tel"
                 maxLength={15}
                 placeholder="WhatsApp (Ej: 261 555 6677)"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                  } focus:border-tekila-pink`}
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${
+                  errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
+                } focus:border-tekila-pink`}
                 value={seleccion.whatsapp}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, '');
