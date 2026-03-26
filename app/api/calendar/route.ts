@@ -60,13 +60,23 @@ export async function POST(request: Request) {
       // Error silencioso en calendar para no trabar el flujo, pero podrías reportarlo a un servicio de monitoreo
     }
 
-    // 4. Bloqueo de horario en Supabase
+    // 4. Actualización y bloqueo en Supabase (Usando Admin Role)
     const idHorario = reserva.horario_id || reserva.horarios_disponibles?.id || reserva.id_horario;
     if (idHorario) {
       await supabaseAdmin
         .from('horarios_disponibles')
         .update({ estado: 'reservado' })
         .eq('id', idHorario);
+    }
+    
+    if (reserva.id) {
+      await supabaseAdmin
+        .from('reservas')
+        .update({ 
+          estado_pago: 'aprobado',
+          payment_id: reserva.payment_id || null
+        })
+        .eq('id', reserva.id);
     }
 
     // 5. Notificación por Email Estilizada

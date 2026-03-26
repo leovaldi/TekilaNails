@@ -51,11 +51,11 @@ function ContenidoReserva() {
           }
         }
 
-        // 3. LLAMADA A LA API (Con los datos confirmados)
+        // 3. LLAMADA A LA API (Con los datos confirmados devueltos o inyectados forzosamente)
         const response = await fetch('/api/calendar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reserva: reservaFinal })
+          body: JSON.stringify({ reserva: { ...reservaFinal, payment_id: paymentId, estado_pago: 'aprobado' } })
         });
 
         if (response.ok) {
