@@ -76,8 +76,10 @@ export function CarruselServicios({
                 className={`flex-[0_0_85%] sm:flex-[0_0_55%] md:flex-[0_0_35%] min-w-0 px-3 transition-all duration-700
                   ${isSelected ? 'opacity-100 scale-100' : 'opacity-20 scale-95 blur-[1px]'}`}
               >
-                {/* CARD REFINADA */}
-                <div className="bg-white dark:bg-zinc-950 p-5 sm:p-6 md:p-8 rounded-[2.8125rem] border border-zinc-100 dark:border-zinc-800 shadow-2xl h-full flex flex-col">
+                {/* CARD REFINADA - Glassmorphism */}
+                <div className={`p-5 sm:p-6 md:p-8 rounded-[2.8125rem] border shadow-2xl h-full flex flex-col transition-colors duration-500
+                  bg-white dark:bg-zinc-950/40 dark:bg-gradient-to-br dark:from-white/5 dark:to-transparent dark:backdrop-blur-md 
+                  ${isSelected ? 'border-tekila-pink shadow-[0_0_30px_rgba(255,0,128,0.15)] dark:shadow-[0_0_30px_rgba(255,0,128,0.2)]' : 'border-zinc-100 dark:border-white/10'}`}>
 
                   {/* IMAGEN */}
                   <div className="relative aspect-[1/1.15] mb-8 overflow-hidden rounded-[2.1875rem] bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-100 dark:ring-zinc-800">
@@ -109,14 +111,14 @@ export function CarruselServicios({
                     </div>
 
                     {/* DESCRIPCIÓN */}
-                    <p className="text-zinc-500 dark:text-zinc-400 text-[0.8125rem] font-light leading-relaxed mb-10 whitespace-pre-wrap">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-light leading-relaxed mb-10 whitespace-pre-wrap">
                       {s.descripcion}
                     </p>
 
                     <div className="mt-auto">
                       <button
                         onClick={() => isSelected && onSelect(s)}
-                        className={`w-full py-5 rounded-[1.5625rem] text-[0.625rem] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all ${isSelected ? 'bg-black dark:bg-white text-white dark:text-black active:scale-95 hover:text-tekila-pink dark:hover:text-tekila-pink cursor-pointer' : 'bg-transparent text-transparent cursor-default select-none'}`}
+                        className={`w-full py-5 rounded-[1.5625rem] text-[0.625rem] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all ${isSelected ? 'bg-black dark:bg-white text-white dark:text-black active:scale-95 hover:text-tekila-pink dark:hover:text-tekila-pink hover:shadow-[0_0_20px_rgba(255,0,128,0.4)] cursor-pointer' : 'bg-transparent text-transparent cursor-default select-none'}`}
                       >
                         <Calendar size={16} className={`${isSelected ? 'text-tekila-pink' : 'text-transparent'}`} />
                         Seleccionar

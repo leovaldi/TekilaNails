@@ -9,7 +9,7 @@ interface Servicio {
   nombre: string
 }
 
-export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio, totalAPagarAhora: number }) {
+export function BookingFlow({ servicio, totalAPagarAhora, totalServicio }: { servicio: Servicio, totalAPagarAhora: number, totalServicio: number }) {
   const [step, setStep] = useState(1)
   const [horarios, setHorarios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,11 +26,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
     whatsapp: '',
     label: ''
   })
-
-  // --- NUEVA LÓGICA DE RECARGO SINCRONIZADA CON EL BACKEND ---
-  const PRECIO_FINAL_MOSTRADO = useMemo(() => {
-    return parseFloat((totalAPagarAhora * 1.076).toFixed(2));
-  }, [totalAPagarAhora]);
 
   useEffect(() => {
     async function cargarHorarios() {
@@ -195,8 +190,8 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                                     key={h.id}
                                     onClick={() => setSeleccion({ ...seleccion, horarioId: h.id, label: `${dia} - ${h.horaStr} hs` })}
                                     className={`py-3 px-4 rounded-xl transition-all duration-300 border flex justify-center items-center gap-2 ${isSelected
-                                        ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]'
-                                        : 'border-zinc-200 dark:border-zinc-700 bg-background hover:border-tekila-pink/50 text-zinc-600 dark:text-zinc-300'
+                                      ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]'
+                                      : 'border-zinc-200 dark:border-zinc-700 bg-background hover:border-tekila-pink/50 text-zinc-600 dark:text-zinc-300'
                                       }`}
                                   >
                                     <span className={`text-sm tracking-wide ${isSelected ? 'font-bold' : 'font-medium'}`}>{h.horaStr} hs</span>
@@ -219,11 +214,16 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             )}
           </div>
 
-          <PrimaryButton
-            text="Confirmar Horario"
+          <button
             disabled={!seleccion.horarioId}
             onClick={() => setStep(2)}
-          />
+            className={`w-full py-6 px-8 rounded-full uppercase tracking-widest text-[0.75rem] font-black transition-all duration-300 shadow-xl ${!seleccion.horarioId
+              ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed shadow-none'
+              : 'bg-tekila-pink text-white hover:bg-tekila-pink/90 hover:scale-[1.02]'
+              }`}
+          >
+            Confirmar Horario
+          </button>
         </div>
       )}
 
@@ -269,20 +269,36 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             </div>
           </div>
 
-          {/* RESUMEN DE PAGO SINCRONIZADO */}
-          <div className="bg-zinc-50 dark:bg-zinc-900/80 p-6 rounded-[1.875rem] border border-zinc-100 dark:border-zinc-800">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[0.625rem] uppercase tracking-[0.2em] font-black text-zinc-400">Total a abonar hoy</span>
-              <span className="text-2xl font-black text-tekila-pink">
-                ${PRECIO_FINAL_MOSTRADO.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {/* RESUMEN DE PAGO SINCRONIZADO - IMPACT CARD NEON */}
+          <div className="p-6 rounded-[1.875rem] bg-gradient-to-br from-[#ff0080] to-[#b00058] shadow-[0_20px_50px_rgba(255,0,128,0.3)] border border-white/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] rounded-full pointer-events-none" />
+            <div className="flex flex-col gap-3 mb-6 relative z-10">
+              <div className="flex justify-between text-[0.625rem] text-white/70 uppercase tracking-widest">
+                <span>Valor del servicio</span>
+                <span className="text-white font-medium">${totalServicio.toLocaleString('es-AR')}</span>
+              </div>
+              <div className="flex justify-between text-[0.625rem] text-white/70 uppercase tracking-widest">
+                <span>Valor de la seña</span>
+                <span className="text-white font-medium">${(totalServicio / 2).toLocaleString('es-AR')}</span>
+              </div>
+              <div className="flex justify-between text-[0.625rem] text-white/70 uppercase tracking-widest">
+                <span>Gestión online (MP)</span>
+                <span className="text-white font-medium">${(totalAPagarAhora - (totalServicio / 2)).toLocaleString('es-AR')}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-4 pt-5 border-t border-white/20 relative z-10">
+              <span className="text-[0.6875rem] uppercase tracking-[0.2em] font-black text-white">Total a abonar hoy</span>
+              <span className="text-3xl font-black text-white drop-shadow-md">
+                ${totalAPagarAhora.toLocaleString('es-AR')}
               </span>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-[0.5625rem] text-zinc-400 italic">
-                <CheckCircle2 size={10} className="text-tekila-pink" />
+            <div className="space-y-1 relative z-10">
+              <div className="flex items-center gap-2 text-[0.5625rem] text-white/80 italic font-medium">
+                <CheckCircle2 size={12} className="text-white" />
                 <p>Turno: {seleccion.label}</p>
               </div>
-              <p className="text-[0.5rem] text-zinc-400/70 uppercase tracking-widest font-medium">
+              <p className="text-[0.5rem] text-white/50 uppercase tracking-widest font-medium">
                 * Incluye gasto de gestión por pago online
               </p>
             </div>

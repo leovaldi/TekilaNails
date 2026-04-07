@@ -7,10 +7,10 @@ import { supabase } from '@/lib/supabase'
 
 function ContenidoReserva() {
   const searchParams = useSearchParams()
-  const externalReference = searchParams.get('external_reference') 
-  const paymentId = searchParams.get('payment_id') 
+  const externalReference = searchParams.get('external_reference')
+  const paymentId = searchParams.get('payment_id')
   const [status, setStatus] = useState('procesando')
-  const ejecutadoRef = useRef(false) 
+  const ejecutadoRef = useRef(false)
 
   useEffect(() => {
     async function confirmarYAgendar() {
@@ -38,9 +38,9 @@ function ContenidoReserva() {
         if (reserva.estado_pago !== 'aprobado' || !reserva.payment_id) {
           const { data: reservaActualizada, error: updateError } = await supabase
             .from('reservas')
-            .update({ 
+            .update({
               estado_pago: 'aprobado',
-              payment_id: paymentId 
+              payment_id: paymentId
             })
             .eq('id', externalReference)
             .select('*, servicios(*), horarios_disponibles(*)')
@@ -64,7 +64,7 @@ function ContenidoReserva() {
           console.error("Error en la API de calendario");
           setStatus('listo'); // Marcamos listo porque el pago ya impactó
         }
-        
+
       } catch (error) {
         console.error("Error crítico:", error);
         setStatus('error');

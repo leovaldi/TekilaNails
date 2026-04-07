@@ -18,12 +18,12 @@ export function Hero() {
 
     return (
         <section className="min-h-[100svh] flex flex-col bg-background relative overflow-hidden transition-colors duration-500">
-            {/* Fondo sutil de la paleta */}
-            <div className="absolute inset-0 bg-gradient-to-b from-tekila-light/10 to-transparent dark:from-zinc-900/50 -z-10" />
+            {/* Fondo sutil de la paleta - El glow general del layout asume el fondo oscuro principal */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-transparent -z-10" />
 
             {/* --- TOP: Bienvenida --- */}
-            <div className="pt-16 text-center">
-                <span className="text-[0.625rem] md:text-[0.6875rem] font-serif italic text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.6em]">
+            <div className="pt-16 text-center z-10 relative">
+                <span className="text-[0.625rem] md:text-[0.6875rem] font-sans text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-black">
                     Tu próximo set favorito empieza acá
                 </span>
             </div>
@@ -61,7 +61,7 @@ export function Hero() {
                 <div className="flex flex-col items-center md:items-start gap-2">
                     <div className="flex items-center gap-2 text-tekila-gray">
                         <MapPin size={14} className="text-tekila-pink" />
-                        <span className="text-[0.6875rem] uppercase tracking-[0.3em] font-serif italic text-foreground/80">
+                        <span className="text-[0.625rem] uppercase tracking-widest font-sans font-bold text-foreground/80">
                             Maipú, Mendoza
                         </span>
                     </div>

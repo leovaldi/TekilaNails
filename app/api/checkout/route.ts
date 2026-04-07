@@ -14,11 +14,9 @@ export async function POST(request: Request) {
     const client = new MercadoPagoConfig({ accessToken: token });
     const preference = new Preference(client);
 
-    // --- CÁLCULO DE RECARGO ---
-    // Multiplicamos por 1.076 para cubrir comisión + IVA.
-    // Usamos .toFixed(2) y parseFloat para que Mercado Pago reciba centavos (ej: 30.12)
-    // y no redondee forzosamente a un entero (30).
-    const precioFinalConRecargo = parseFloat((Number(precioSenia) * 1.076).toFixed(2));
+    // El precioSenia calculado y recibido desde el frontend ya incluye el costo de gestión online.
+    // Usamos Number para asegurar que el formato sea correcto.
+    const precioFinalConRecargo = Number(precioSenia);
 
     const response = await preference.create({
       body: {

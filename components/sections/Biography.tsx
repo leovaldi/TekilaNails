@@ -63,7 +63,7 @@ export function Biography() {
                     <motion.div variants={sparkleVariants} animate="animate" className="absolute -top-4 -left-4 text-tekila-light text-xl z-10">✦</motion.div>
                     <motion.div variants={sparkleVariants} animate="animate" transition={{ delay: 0.7 }} className="absolute -bottom-2 -right-2 text-tekila-light/50 z-10">✦</motion.div>
 
-                    <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-2 border-tekila-light/30 p-1.5 shadow-2xl bg-white dark:bg-zinc-900 relative">
+                    <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(255,0,128,0.15)] bg-white dark:bg-zinc-950 relative">
                         {loading ? (
                             <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-full" />
                         ) : (
@@ -87,7 +87,7 @@ export function Biography() {
 
                     <div className="h-[0.125rem] w-[5rem] bg-tekila-pink mb-8 opacity-60"></div>
 
-                    <p className="text-[0.875rem] md:text-base font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl whitespace-pre-wrap">
+                    <p className="text-lg md:text-xl font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl whitespace-pre-wrap">
                         {biografia}
                     </p>
                 </div>

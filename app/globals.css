@@ -3,8 +3,10 @@
 @theme inline {
   /* --- PALETA TEKILA NAILS --- */
   --color-tekila-dark: #000000;
-  --color-tekila-pink: #FF0080; /* Rosa vibrante */
-  --color-tekila-light: #FF99CC; /* Rosa claro pastel */
+  --color-tekila-pink: #FF0080;
+  /* Rosa vibrante */
+  --color-tekila-light: #FF99CC;
+  /* Rosa claro pastel */
   --color-tekila-white: #FFFFFF;
   --color-tekila-gray: #666666;
 
@@ -24,8 +26,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Modo Oscuro: Negro puro y texto blanco */
-    --background: #000000;
+    /* Modo Oscuro Profundo */
+    --background: #0a0a0a;
     --foreground: #FFFFFF;
   }
 }
@@ -40,8 +42,15 @@ body {
 }
 
 /* Tipografía de Títulos para usar el font alternativo */
-h1, h2, h3, h4, .font-serif, .italic.font-light {
+h1,
+h2,
+h3,
+h4,
+.font-serif,
+.italic.font-light {
   font-family: var(--font-heading), serif;
+  letter-spacing: -0.02em;
+  /* tracking-tight base */
 }
 
 /* Personalización del scrollbar para que sea minimalista y coincida con la paleta */

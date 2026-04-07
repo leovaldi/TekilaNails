@@ -1,6 +1,8 @@
 'use client'
+import { useState } from 'react'
 import { motion, Variants } from 'framer-motion'
-import { CreditCard, MapPin, Clock, Instagram, ShieldCheck, UserMinus, AlertCircle } from 'lucide-react'
+import { CreditCard, MapPin, Clock, Instagram, ShieldCheck, UserMinus, AlertCircle, MessageCircle } from 'lucide-react'
+import SupportModal from './SupportModal' // Asegúrate de que la ruta sea correcta
 
 // Array de Pautas: Mismo contenido, estructura de card mejorada
 const PAUTAS = [
@@ -50,6 +52,8 @@ const btnShineVariants: Variants = {
 }
 
 export function Methodology() {
+    const [isSupportOpen, setIsSupportOpen] = useState(false);
+
     return (
         <section id="methodology-section" className="py-24 md:py-32 px-6 max-w-7xl mx-auto border-t border-zinc-50 dark:border-zinc-900 overflow-hidden bg-zinc-50/50 dark:bg-[#0a0a0a]">
             <motion.div
@@ -179,7 +183,26 @@ export function Methodology() {
                     </div>
                 </div>
 
+                {/* BOTÓN DE SOPORTE INTEGRADO DESPUÉS DE RRSS */}
+                <div className="w-full flex justify-center mt-12 pb-8">
+                    <button
+                        onClick={() => setIsSupportOpen(true)}
+                        className="group flex items-center gap-3 px-8 py-4 bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-tekila-pink transition-all duration-500"
+                    >
+                        <MessageCircle size={16} className="text-zinc-400 group-hover:text-tekila-pink transition-colors" />
+                        <span className="text-[0.625rem] uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                            ¿Necesitás ayuda con la web? <span className="font-bold underline underline-offset-4 ml-1">Reportar error</span>
+                        </span>
+                    </button>
+                </div>
+
             </motion.div>
+
+            {/* MODAL DE SOPORTE */}
+            <SupportModal
+                isOpen={isSupportOpen}
+                onClose={() => setIsSupportOpen(false)}
+            />
         </section>
     )
 }

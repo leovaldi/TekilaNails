@@ -1,18 +1,20 @@
-'use client'
+'use client';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Lock, X, ExternalLink, UserCircle, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, X, ExternalLink, UserCircle, ChevronRight, Loader2, AlertCircle, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import ReservasTab from './components/ReservasTab';
 import ServiciosTab from './components/ServiciosTab';
 import HorariosTab from './components/HorariosTab';
+import ManualReservasTab from './components/ManualReservasTab'; // Nuevo Componente
 import { AdminAvatarUpload } from './components/AdminAvatarUpload';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [tab, setTab] = useState<'reservas' | 'servicios' | 'horarios' | 'perfil'>('reservas');
+  // Se añade 'manual' al tipo de tab
+  const [tab, setTab] = useState<'reservas' | 'servicios' | 'horarios' | 'perfil' | 'manual'>('reservas');
   const [loading, setLoading] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -58,23 +60,27 @@ export default function AdminPage() {
 
   async function fetchData() {
     setLoading(true);
-    if (tab === 'servicios') {
+    // Para la pestaña manual también necesitamos cargar servicios y horarios disponibles
+    if (tab === 'servicios' || tab === 'manual') {
       const { data } = await supabase
         .from('servicios')
         .select('*')
         .order('orden', { ascending: true });
       if (data) setServicios(data);
-    } else if (tab === 'horarios') {
+    }
+
+    if (tab === 'horarios' || tab === 'manual') {
       const { data } = await supabase.from('horarios_disponibles').select('*').order('dia_hora', { ascending: true });
       if (data) setHorarios(data);
-    } else if (tab === 'reservas') {
+    }
+
+    if (tab === 'reservas') {
       const { data } = await supabase.from('reservas').select('*, servicios(*), horarios_disponibles(*)').eq('estado_pago', 'aprobado').order('created_at', { ascending: false });
       if (data) setReservas(data);
     }
     setLoading(false);
   }
 
-  // --- MEJORA APLICADA: LOGIN CON FEEDBACK DE ERROR ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -141,15 +147,13 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 text-center">
-        <form onSubmit={handleLogin} className="max-w-sm w-full space-y-8">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
+        <form onSubmit={handleLogin} className="max-w-sm w-full space-y-8 relative z-10">
           <Lock className="text-tekila-pink mx-auto" size={32} />
-
           <div className="space-y-2">
             <h1 className="text-white text-[clamp(1.5rem,5vw,2rem)] italic tracking-tighter">Acceso Privado</h1>
             <p className="text-[0.625rem] text-zinc-500 uppercase tracking-widest">Panel de Administración</p>
           </div>
-
           <div className="flex flex-col gap-6">
             <div className="relative">
               <input
@@ -163,8 +167,6 @@ export default function AdminPage() {
                 }}
                 disabled={isLoggingIn}
               />
-
-              {/* Mensaje Ajustado: Aparece justo debajo del input sin mover el botón drásticamente */}
               {loginError && (
                 <div className="absolute left-0 right-0 -bottom-5 animate-in fade-in slide-in-from-top-1 duration-200">
                   <span className="text-[0.5625rem] text-red-500 font-black uppercase tracking-widest">
@@ -173,7 +175,6 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
-
             <button
               type="submit"
               disabled={isLoggingIn}
@@ -188,7 +189,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white p-6 md:p-12">
+    <div className="min-h-screen bg-background text-foreground p-6 md:p-12">
       <header className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="flex items-center justify-between w-full md:w-auto gap-4">
           <h1 className="text-[clamp(1.5rem,5vw,2rem)] italic tracking-tighter">Admin Tekila</h1>
@@ -203,20 +204,20 @@ export default function AdminPage() {
         </div>
 
         <div className="relative w-full md:w-auto">
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent z-10 pointer-events-none md:hidden" />
-
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
           <div
             ref={scrollContainerRef}
             className="flex bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-full overflow-x-auto no-scrollbar max-w-full relative"
           >
-            {['reservas', 'servicios', 'horarios', 'perfil'].map((t) => (
+            {/* Se agrega 'manual' a la lista de pestañas */}
+            {['reservas', 'manual', 'servicios', 'horarios', 'perfil'].map((t) => (
               <button
                 key={t}
                 id={`tab-${t}`}
                 onClick={() => { setTab(t as any); cancelarEdicion(); }}
                 className={`px-6 py-2.5 rounded-full text-[0.625rem] uppercase font-bold tracking-[0.15em] transition-all whitespace-nowrap ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-md text-tekila-pink scale-105' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
               >
-                {t}
+                {t === 'manual' ? 'Nueva Reserva' : t}
               </button>
             ))}
           </div>
@@ -225,6 +226,15 @@ export default function AdminPage() {
 
       <main className="max-w-4xl mx-auto">
         {tab === 'reservas' && <ReservasTab reservas={reservas} fetchData={fetchData} />}
+
+        {/* --- NUEVA PESTAÑA: RESERVA MANUAL --- */}
+        {tab === 'manual' && (
+          <ManualReservasTab
+            servicios={servicios}
+            horarios={horarios}
+            fetchData={fetchData}
+          />
+        )}
 
         {tab === 'servicios' && (
           <ServiciosTab
@@ -250,9 +260,7 @@ export default function AdminPage() {
               <h2 className="text-[clamp(1.25rem,4vw,1.5rem)] italic tracking-tighter">Tu Perfil Profesional</h2>
               <p className="text-[0.625rem] text-zinc-400 uppercase tracking-[0.3em] font-medium">Gestioná tu imagen de marca</p>
             </div>
-
             <AdminAvatarUpload />
-
             <div className="mt-12 p-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] text-center bg-zinc-50/50 dark:bg-zinc-900/50">
               <p className="text-[0.625rem] text-zinc-400 leading-relaxed uppercase tracking-widest max-w-xs mx-auto">
                 Los cambios realizados aquí impactan directamente en la sección sobre mí de la web principal.

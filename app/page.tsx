@@ -124,13 +124,13 @@ export default function Home() {
 
               <div className="space-y-8">
                 <div>
-                  <label className="text-[0.625rem] uppercase tracking-widest font-bold mb-4 block text-zinc-400">
-                    ¿Tenés esmalte previo?
+                  <label className="text-[0.75rem] md:text-[0.875rem] uppercase tracking-widest font-black mb-4 block text-zinc-800 dark:text-zinc-200">
+                    ¿Tenés esmalte previo? <span className="text-tekila-pink">*</span>
                   </label>
                   <div className="grid grid-cols-1 gap-2">
                     <button
-                      onClick={() => setRetiroSeleccionado(null)}
-                      className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${!retiroSeleccionado ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
+                      onClick={() => setRetiroSeleccionado('none')}
+                      className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${retiroSeleccionado === 'none' ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]' : 'border-zinc-200 dark:border-zinc-800 bg-background text-zinc-500 hover:border-tekila-pink/50'}`}
                     >
                       Uñas al natural
                     </button>
@@ -138,7 +138,7 @@ export default function Home() {
                       <button
                         key={r.id}
                         onClick={() => setRetiroSeleccionado(r.id)}
-                        className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${retiroSeleccionado === r.id ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
+                        className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${retiroSeleccionado === r.id ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]' : 'border-zinc-200 dark:border-zinc-800 bg-background text-zinc-500 hover:border-tekila-pink/50'}`}
                       >
                         {r.nombre} (+${r.precio})
                       </button>
@@ -146,21 +146,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="bg-zinc-50 dark:bg-zinc-900/50 p-6 space-y-3 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                  <div className="flex justify-between text-[0.625rem] text-zinc-400 uppercase tracking-widest">
-                    <span>Subtotal servicio</span>
-                    <span>${totalServicio.toLocaleString()}</span>
+                {retiroSeleccionado !== null && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <BookingFlow
+                      servicio={selectedService}
+                      totalServicio={totalServicio}
+                      totalAPagarAhora={totalAPagarAhora}
+                    />
                   </div>
-                  <div className="flex justify-between items-center pt-6 border-t border-zinc-200 dark:border-zinc-800">
-                    <span className="font-bold uppercase text-[0.625rem] tracking-widest">Seña + Gestión:</span>
-                    <span className="text-[clamp(1.875rem,5vw,2.25rem)] font-light text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <BookingFlow
-                  servicio={selectedService}
-                  totalAPagarAhora={totalAPagarAhora}
-                />
+                )}
               </div>
             </motion.div>
           </motion.div>
