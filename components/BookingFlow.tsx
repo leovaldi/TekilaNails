@@ -27,6 +27,11 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
     label: ''
   })
 
+  // --- NUEVA LÓGICA DE RECARGO SINCRONIZADA CON EL BACKEND ---
+  const PRECIO_FINAL_MOSTRADO = useMemo(() => {
+    return parseFloat((totalAPagarAhora * 1.076).toFixed(2));
+  }, [totalAPagarAhora]);
+
   useEffect(() => {
     async function cargarHorarios() {
       const { data } = await supabase
@@ -37,11 +42,8 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
 
       if (data && data.length > 0) {
         const ahora = new Date()
-        // Filtramos solo turnos futuros
         const futuros = data.filter(h => new Date(h.dia_hora) > ahora)
         setHorarios(futuros)
-
-        // Expandir automáticamente el primer mes y día disponibles fue removido a pedido.
       }
       setLoading(false)
     }
@@ -53,11 +55,11 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
       const fecha = new Date(h.dia_hora)
       const mes = fecha.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
       let dia = fecha.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })
-      dia = dia.charAt(0).toUpperCase() + dia.slice(1) // Capitalizar primer letra
-      
+      dia = dia.charAt(0).toUpperCase() + dia.slice(1)
+
       if (!acc[mes]) acc[mes] = {}
       if (!acc[mes][dia]) acc[mes][dia] = []
-      
+
       acc[mes][dia].push({
         ...h,
         horaStr: fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -74,7 +76,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
     let errorWA = false
     let mensaje = ''
 
-    // VALIDACIONES DE SEGURIDAD
     if (nombreLimpio.length < 3) {
       errorNombre = true
       mensaje = "El nombre es muy corto."
@@ -98,7 +99,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
 
     setIsProcessing(true)
     try {
-      // 1. Insertamos la reserva en Supabase
       const { data: reserva, error: resError } = await supabase
         .from('reservas')
         .insert([{
@@ -114,7 +114,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
 
       if (resError) throw resError
 
-      // 2. Generamos el link de Mercado Pago
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,7 +143,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
   return (
     <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
 
-      {/* PASO 1: SELECCIÓN DE TURNO */}
       {step === 1 && (
         <div className="space-y-6 animate-in fade-in duration-500">
           <div className="flex justify-between items-end">
@@ -162,10 +160,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 ))}
               </div>
             ) : Object.keys(groupedHorarios).length > 0 ? (
-              Object.entries(groupedHorarios as Record<string, Record<string, any[]>>).map(([mes, dias]) => (
+              Object.entries(groupedHorarios).map(([mes, dias]) => (
                 <div key={mes} className="border border-zinc-100 dark:border-zinc-800/80 rounded-3xl overflow-hidden shadow-sm">
-                  {/* Categoría: Mes */}
-                  <button 
+                  <button
                     onClick={() => setExpandedMonth(expandedMonth === mes ? null : mes)}
                     className="w-full p-4 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/80"
                   >
@@ -175,10 +172,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                     </span>
                   </button>
 
-                  {/* Lista de Días */}
                   {expandedMonth === mes && (
                     <div className="p-3 bg-background flex flex-col gap-3">
-                      {Object.entries(dias as Record<string, any[]>).map(([dia, turnos]) => (
+                      {Object.entries(dias).map(([dia, turnos]) => (
                         <div key={dia} className="border border-zinc-100 dark:border-zinc-800/50 rounded-2xl overflow-hidden">
                           <button
                             onClick={() => setExpandedDay(expandedDay === dia ? null : dia)}
@@ -190,7 +186,6 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                             </span>
                           </button>
 
-                          {/* Grilla de Horarios */}
                           {expandedDay === dia && (
                             <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-50/50 dark:bg-zinc-900/20 border-t border-zinc-50 dark:border-zinc-800/50">
                               {turnos.map((h: any) => {
@@ -199,11 +194,10 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                                   <button
                                     key={h.id}
                                     onClick={() => setSeleccion({ ...seleccion, horarioId: h.id, label: `${dia} - ${h.horaStr} hs` })}
-                                    className={`py-3 px-4 rounded-xl transition-all duration-300 border flex justify-center items-center gap-2 ${
-                                      isSelected
+                                    className={`py-3 px-4 rounded-xl transition-all duration-300 border flex justify-center items-center gap-2 ${isSelected
                                         ? 'border-tekila-pink bg-tekila-pink text-white shadow-md scale-[1.02]'
                                         : 'border-zinc-200 dark:border-zinc-700 bg-background hover:border-tekila-pink/50 text-zinc-600 dark:text-zinc-300'
-                                    }`}
+                                      }`}
                                   >
                                     <span className={`text-sm tracking-wide ${isSelected ? 'font-bold' : 'font-medium'}`}>{h.horaStr} hs</span>
                                     {isSelected && <CheckCircle2 size={16} className="text-white shrink-0" />}
@@ -233,11 +227,9 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
         </div>
       )}
 
-      {/* PASO 2: DATOS Y ADICIONALES */}
       {step === 2 && (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
 
-          {/* DATOS PERSONALES */}
           <div className="space-y-5">
             <label className="text-[0.625rem] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
               <User size={14} className="text-tekila-pink" /> Datos de contacto
@@ -248,9 +240,8 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="text"
                 maxLength={35}
                 placeholder="Nombre y Apellido completo"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${
-                  errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                } focus:border-tekila-pink`}
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
+                  } focus:border-tekila-pink`}
                 value={seleccion.nombre}
                 onChange={(e) => { setSeleccion({ ...seleccion, nombre: e.target.value }); setErrores({ ...errores, nombre: false }) }}
               />
@@ -259,9 +250,8 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="tel"
                 maxLength={15}
                 placeholder="WhatsApp (Ej: 261 555 6677)"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${
-                  errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
-                } focus:border-tekila-pink`}
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
+                  } focus:border-tekila-pink`}
                 value={seleccion.whatsapp}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, '');
@@ -279,15 +269,22 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             </div>
           </div>
 
-          {/* RESUMEN DE PAGO */}
+          {/* RESUMEN DE PAGO SINCRONIZADO */}
           <div className="bg-zinc-50 dark:bg-zinc-900/80 p-6 rounded-[1.875rem] border border-zinc-100 dark:border-zinc-800">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[0.625rem] uppercase tracking-[0.2em] font-black text-zinc-400">Total Seña</span>
-              <span className="text-2xl font-black text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[0.625rem] uppercase tracking-[0.2em] font-black text-zinc-400">Total a abonar hoy</span>
+              <span className="text-2xl font-black text-tekila-pink">
+                ${PRECIO_FINAL_MOSTRADO.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-[0.5625rem] text-zinc-400 italic">
-              <CheckCircle2 size={10} className="text-tekila-pink" />
-              <p>Turno: {seleccion.label}</p>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[0.5625rem] text-zinc-400 italic">
+                <CheckCircle2 size={10} className="text-tekila-pink" />
+                <p>Turno: {seleccion.label}</p>
+              </div>
+              <p className="text-[0.5rem] text-zinc-400/70 uppercase tracking-widest font-medium">
+                * Incluye gasto de gestión por pago online
+              </p>
             </div>
           </div>
 
