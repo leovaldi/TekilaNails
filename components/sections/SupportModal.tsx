@@ -13,7 +13,7 @@ export default function SupportModal({ isOpen, onClose }: { isOpen: boolean, onC
     if (!isOpen) return null;
 
     const handleSend = () => {
-        const WHATSAPP_NUMBER = "549261000000"; // Reemplazar con el número de Rocío
+        const WHATSAPP_NUMBER = "5492615909849"; // Reemplazar con el número de Rocío
 
         // Estructura limpia: Rocío ya tiene el número al recibir el chat
         const message = `🚨 *REPORTE DE ERROR - TEKILA NAILS*
