@@ -143,24 +143,38 @@ export async function POST(request: Request) {
       // Error silencioso
     }
 
-    // 6. Notificación por WhatsApp (CallMeBot)
+    // 6. Notificación por Telegram (Oficial y estable)
     try {
-      const phone = process.env.CALLMEBOT_PHONE;
-      const apiKey = process.env.CALLMEBOT_API_KEY;
-      if (phone && apiKey) {
-        const mensajeWP =
-          `💅 *¡NUEVA RESERVA!* \n\n` +
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+
+      if (botToken && chatId) {
+        // Limpiamos el número para que el link de WhatsApp sea clickeable
+        const waPhone = reserva.whatsapp_cliente?.replace(/\D/g, '') || '';
+
+        const mensajeTelegram =
+          `💅 *¡NUEVA RESERVA CONFIRMADA!* \n\n` +
           `👤 *Cliente:* ${reserva.nombre_cliente} \n` +
           `✨ *Servicio:* ${reserva.servicios?.nombre || 'Consultar'} \n` +
           `📅 *Fecha:* ${fechaLegible} hs \n\n` +
-          `✅ _Confirmada y agendada_`;
+          `📱 [Chatear con el cliente por WhatsApp](https://wa.me/${waPhone}) \n\n` +
+          `✅ _Agenda sincronizada automáticamente_`;
 
-        const wpUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(mensajeWP)}&apikey=${apiKey}`;
-        // Disparar sin esperar para no demorar la respuesta de la API
-        fetch(wpUrl).catch(() => { });
+        const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        // Usamos POST que es el método oficial de Telegram
+        await fetch(telegramUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: mensajeTelegram,
+            parse_mode: 'Markdown',
+          }),
+        });
       }
-    } catch (wpErr) {
-      // Error silencioso
+    } catch (tgErr) {
+      console.error("Error enviando Telegram:", tgErr);
     }
 
     return NextResponse.json({ success: true });
