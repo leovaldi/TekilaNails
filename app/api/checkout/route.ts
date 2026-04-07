@@ -14,16 +14,20 @@ export async function POST(request: Request) {
     const client = new MercadoPagoConfig({ accessToken: token });
     const preference = new Preference(client);
 
-    // Versión segura contra el bug de Mercado Pago con localhost y auto_return
-    const isLocalhost = baseUrl.includes("localhost");
+    // --- CÁLCULO DE RECARGO ---
+    // Multiplicamos por 1.076 para cubrir comisión + IVA.
+    // Usamos .toFixed(2) y parseFloat para que Mercado Pago reciba centavos (ej: 30.12)
+    // y no redondee forzosamente a un entero (30).
+    const precioFinalConRecargo = parseFloat((Number(precioSenia) * 1.076).toFixed(2));
+
     const response = await preference.create({
       body: {
         items: [
           {
             id: String(reservaId),
-            title: nombreServicio || "Servicio de Manicuría",
+            title: nombreServicio || "Seña - Tekila Nails",
             quantity: 1,
-            unit_price: Math.round(Number(precioSenia) * 1.076), // Recargo del 7.6%
+            unit_price: precioFinalConRecargo,
             currency_id: 'ARS',
           }
         ],
@@ -41,12 +45,12 @@ export async function POST(request: Request) {
       }
     });
 
-    console.log("¡ÉXITO MP!", response.init_point);
+    console.log("¡ÉXITO MP!", response.init_point, "Monto final:", precioFinalConRecargo);
     return NextResponse.json({ init_point: response.init_point });
 
   } catch (error: any) {
     console.error('--- ERROR DETECTADO ---');
-    console.log(JSON.stringify(error, null, 2)); // Esto nos dará el error completo
+    console.log(JSON.stringify(error, null, 2));
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
