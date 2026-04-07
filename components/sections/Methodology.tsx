@@ -61,7 +61,7 @@ export function Methodology() {
             >
                 <div className="text-center mb-16 md:mb-20">
                     {/* TÍTULO CAMBIADO A POLÍTICAS */}
-                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-light tracking-tighter mb-4 text-zinc-900 dark:text-white">
+                    <h2 className="text-[clamp(1.5rem,6vw,3rem)] font-light tracking-tighter mb-4 text-zinc-900 dark:text-white">
                         Políticas Tekila
                     </h2>
 
@@ -72,7 +72,7 @@ export function Methodology() {
                         className="w-12 h-[1px] bg-tekila-pink mx-auto mb-4"
                     />
 
-                    <p className="text-[10px] md:text-[11px] uppercase tracking-[0.4em] text-zinc-400 font-medium">Leé con atención antes de reservar</p>
+                    <p className="text-[0.625rem] md:text-[0.6875rem] uppercase tracking-[0.4em] text-zinc-400 font-medium">Leé con atención antes de reservar</p>
                 </div>
 
                 {/* PAUTAS CON DISEÑO DE CARDS (Estilo Referencia) */}
@@ -87,13 +87,13 @@ export function Methodology() {
                             className="relative group p-[1px] rounded-3xl overflow-hidden h-full shadow-sm"
                         >
                             <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_180deg,#FF0080_220deg,#FF99CC_260deg,#FF0080_300deg,#FFFFFF_340deg,#000_360deg)] animate-[spin_8s_linear_infinite] opacity-30 md:opacity-0 md:group-hover:opacity-40 transition-opacity duration-700" />
-                            <div className="relative bg-background p-7 rounded-[23px] flex gap-5 items-start h-full border border-zinc-100 dark:border-zinc-800">
+                            <div className="relative bg-background p-7 rounded-[1.4375rem] flex gap-5 items-start h-full border border-zinc-100 dark:border-zinc-800">
                                 <div className="w-11 h-11 rounded-full bg-background flex items-center justify-center shrink-0 border border-zinc-200 dark:border-zinc-800 md:group-hover:border-tekila-pink transition-all duration-500">
                                     <Icon className="text-tekila-pink md:text-tekila-gray md:group-hover:text-tekila-pink transition-colors" size={20} />
                                 </div>
                                 <div className="space-y-1.5 pt-1">
-                                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">{title}</h4>
-                                    <p className="text-[13px] md:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-light">
+                                    <h4 className="text-[0.6875rem] font-bold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">{title}</h4>
+                                    <p className="text-[0.8125rem] md:text-[0.875rem] text-zinc-500 dark:text-zinc-400 leading-relaxed font-light">
                                         {text}
                                     </p>
                                 </div>
@@ -106,22 +106,22 @@ export function Methodology() {
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 pb-16">
 
                     {/* LADO IZQUIERDO: INSTAGRAM */}
-                    <div className="relative group p-[1px] rounded-[40px] overflow-hidden flex-1 shadow-2xl">
+                    <div className="relative group p-[1px] rounded-[2.5rem] overflow-hidden flex-1 shadow-2xl">
                         {/* Animación del borde (Se mantiene) */}
                         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_180deg,#FF0080_220deg,#FF99CC_260deg,#FF0080_300deg,#FFFFFF_340deg,#000_360deg)] animate-[spin_8s_linear_infinite] opacity-40 group-hover:opacity-100 transition-opacity duration-700" />
 
                         {/* FONDO INTERIOR MODIFICADO: Ultra-sutil y profundo --- */}
-                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
+                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[2.4375rem] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
 
                             {/* Gradientes radiales estáticos: AJUSTADOS para ser MÍNIMOS --- */}
                             <div className="absolute inset-0 opacity-10 dark:opacity-20 bg-[radial-gradient(circle_at_50%_50%,#FF0080_0%,#FF99CC_30%,transparent_70%)] blur-2xl z-0" />
                             {/* Glow extra para IG */}
-                            <div className="absolute -top-10 -left-10 w-40 h-40 bg-tekila-pink/5 dark:bg-tekila-pink/10 blur-[80px] rounded-full z-0" />
+                            <div className="absolute -top-10 -left-10 w-40 h-40 bg-tekila-pink/5 dark:bg-tekila-pink/10 blur-[5rem] rounded-full z-0" />
 
                             {/* Contenido (relative z-10 para estar sobre el fondo) */}
                             <div className="text-center relative z-10 space-y-3">
-                                <h3 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">Manifestando tu próximo set🔥</h3>
-                                <p className="text-[10px] md:text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Cada set es un mood. Descubrí tu próximo diseño en nuestro IG.</p>
+                                <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-light tracking-tight text-zinc-900 dark:text-white relative z-10">Manifestando tu próximo set🔥</h3>
+                                <p className="text-[0.625rem] md:text-[0.6875rem] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Cada set es un mood. Descubrí tu próximo diseño en nuestro IG.</p>
                             </div>
 
                             <motion.a
@@ -130,7 +130,7 @@ export function Methodology() {
                                 rel="noopener noreferrer"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="relative flex items-center gap-3 px-12 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] md:text-[11px] uppercase tracking-[0.4em] font-bold overflow-hidden group/btn shadow-xl transition-all z-10"
+                                className="relative flex items-center gap-3 px-12 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[0.625rem] md:text-[0.6875rem] uppercase tracking-[0.4em] font-bold overflow-hidden group/btn shadow-xl transition-all z-10"
                             >
                                 <motion.div variants={btnShineVariants} animate="animate" className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                                 <Instagram size={18} />
@@ -140,22 +140,22 @@ export function Methodology() {
                     </div>
 
                     {/* LADO DERECHO: TIKTOK */}
-                    <div className="relative group p-[1px] rounded-[40px] overflow-hidden flex-1 shadow-2xl">
+                    <div className="relative group p-[1px] rounded-[2.5rem] overflow-hidden flex-1 shadow-2xl">
                         {/* Animación del borde */}
                         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_180deg,#FF99CC_220deg,#FF0080_260deg,#FF99CC_300deg,#FFFFFF_340deg,#000_360deg)] animate-[spin_8s_linear_infinite] opacity-40 group-hover:opacity-100 transition-opacity duration-700" />
 
                         {/* FONDO INTERIOR MODIFICADO --- */}
-                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[39px] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
+                        <div className="relative flex flex-col items-center gap-10 bg-background p-8 sm:p-12 rounded-[2.4375rem] h-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
 
                             {/* Gradientes radiales estáticos: AJUSTADOS para ser MÍNIMOS --- */}
                             <div className="absolute inset-0 opacity-10 dark:opacity-20 bg-[radial-gradient(circle_at_50%_50%,#FF99CC_0%,#FF0080_30%,transparent_70%)] blur-2xl z-0" />
                             {/* Glow extra para TT */}
-                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-tekila-pink/5 dark:bg-tekila-pink/10 blur-[80px] rounded-full z-0" />
+                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-tekila-pink/5 dark:bg-tekila-pink/10 blur-[5rem] rounded-full z-0" />
 
                             {/* Contenido (relative z-10 para estar sobre el fondo) */}
                             <div className="text-center relative z-10 space-y-3">
-                                <h3 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-zinc-900 dark:text-white relative z-10">¿Team procesos?🎬</h3>
-                                <p className="text-[10px] md:text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Tutoriales rápidos y todo el vibe del nail art en TikTok.</p>
+                                <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-light tracking-tight text-zinc-900 dark:text-white relative z-10">¿Team procesos?🎬</h3>
+                                <p className="text-[0.625rem] md:text-[0.6875rem] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em] font-medium max-w-sm mx-auto relative z-10">Tutoriales rápidos y todo el vibe del nail art en TikTok.</p>
                             </div>
 
                             <motion.a
@@ -164,7 +164,7 @@ export function Methodology() {
                                 rel="noopener noreferrer"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="relative flex items-center gap-3 px-12 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] md:text-[11px] uppercase tracking-[0.4em] font-bold overflow-hidden group/btn shadow-xl transition-all z-10"
+                                className="relative flex items-center gap-3 px-12 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[0.625rem] md:text-[0.6875rem] uppercase tracking-[0.4em] font-bold overflow-hidden group/btn shadow-xl transition-all z-10"
                             >
                                 <motion.div variants={btnShineVariants} animate="animate" className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 

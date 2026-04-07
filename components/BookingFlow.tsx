@@ -148,10 +148,10 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
       {step === 1 && (
         <div className="space-y-6 animate-in fade-in duration-500">
           <div className="flex justify-between items-end">
-            <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
+            <label className="text-[0.625rem] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
               <Calendar size={14} className="text-tekila-pink" /> 1. Disponibilidad
             </label>
-            <span className="text-[9px] text-zinc-300 italic font-medium uppercase tracking-tighter">Maipú, Mendoza</span>
+            <span className="text-[0.5625rem] text-zinc-300 italic font-medium uppercase tracking-tighter">Maipú, Mendoza</span>
           </div>
 
           <div className="flex flex-col gap-4 w-full">
@@ -169,7 +169,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                     onClick={() => setExpandedMonth(expandedMonth === mes ? null : mes)}
                     className="w-full p-4 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/80"
                   >
-                    <span className="text-[11px] uppercase tracking-widest font-black text-tekila-pink capitalize">{mes}</span>
+                    <span className="text-[0.6875rem] uppercase tracking-widest font-black text-tekila-pink capitalize">{mes}</span>
                     <span className="text-zinc-400">
                       {expandedMonth === mes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </span>
@@ -220,7 +220,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
               ))
             ) : (
               <div className="py-12 text-center border border-dashed border-zinc-100 dark:border-zinc-800 rounded-3xl">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-400 italic">No hay turnos disponibles por el momento.</p>
+                <p className="text-[0.625rem] uppercase tracking-widest text-zinc-400 italic">No hay turnos disponibles por el momento.</p>
               </div>
             )}
           </div>
@@ -239,7 +239,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
 
           {/* DATOS PERSONALES */}
           <div className="space-y-5">
-            <label className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
+            <label className="text-[0.625rem] uppercase tracking-[0.3em] font-black text-zinc-400 flex items-center gap-2 italic">
               <User size={14} className="text-tekila-pink" /> Datos de contacto
             </label>
 
@@ -248,7 +248,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="text"
                 maxLength={35}
                 placeholder="Nombre y Apellido completo"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${
                   errores.nombre ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
                 } focus:border-tekila-pink`}
                 value={seleccion.nombre}
@@ -259,7 +259,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
                 type="tel"
                 maxLength={15}
                 placeholder="WhatsApp (Ej: 261 555 6677)"
-                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[22px] text-sm outline-none border transition-all ${
+                className={`w-full p-5 bg-zinc-50 dark:bg-zinc-900 rounded-[1.375rem] text-sm outline-none border transition-all ${
                   errores.whatsapp ? 'border-red-500 ring-1 ring-red-500/20' : 'border-zinc-100 dark:border-zinc-800'
                 } focus:border-tekila-pink`}
                 value={seleccion.whatsapp}
@@ -273,19 +273,19 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
               {errores.msg && (
                 <div className="flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 rounded-2xl border border-red-100 dark:border-red-500/20">
                   <AlertCircle size={14} className="text-red-500" />
-                  <p className="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase tracking-tight leading-none">{errores.msg}</p>
+                  <p className="text-[0.625rem] text-red-600 dark:text-red-400 font-bold uppercase tracking-tight leading-none">{errores.msg}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* RESUMEN DE PAGO */}
-          <div className="bg-zinc-50 dark:bg-zinc-900/80 p-6 rounded-[30px] border border-zinc-100 dark:border-zinc-800">
+          <div className="bg-zinc-50 dark:bg-zinc-900/80 p-6 rounded-[1.875rem] border border-zinc-100 dark:border-zinc-800">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400">Total Seña</span>
+              <span className="text-[0.625rem] uppercase tracking-[0.2em] font-black text-zinc-400">Total Seña</span>
               <span className="text-2xl font-black text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-2 text-[9px] text-zinc-400 italic">
+            <div className="flex items-center gap-2 text-[0.5625rem] text-zinc-400 italic">
               <CheckCircle2 size={10} className="text-tekila-pink" />
               <p>Turno: {seleccion.label}</p>
             </div>
@@ -299,7 +299,7 @@ export function BookingFlow({ servicio, totalAPagarAhora }: { servicio: Servicio
             />
             <button
               onClick={() => setStep(1)}
-              className="flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.4em] text-zinc-400 hover:text-tekila-pink transition-colors font-black"
+              className="flex items-center justify-center gap-2 text-[0.5625rem] uppercase tracking-[0.4em] text-zinc-400 hover:text-tekila-pink transition-colors font-black"
             >
               <ArrowLeft size={12} /> Volver a horarios
             </button>

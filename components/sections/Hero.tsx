@@ -23,7 +23,7 @@ export function Hero() {
 
             {/* --- TOP: Bienvenida --- */}
             <div className="pt-16 text-center">
-                <span className="text-[10px] md:text-[11px] font-serif italic text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.6em]">
+                <span className="text-[0.625rem] md:text-[0.6875rem] font-serif italic text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.6em]">
                     Tu próximo set favorito empieza acá
                 </span>
             </div>
@@ -35,7 +35,7 @@ export function Hero() {
                 transition={{ duration: 1 }}
                 className="flex-grow flex flex-col items-center justify-center px-6"
             >
-                <div className="relative w-full max-w-[320px] h-[190px] md:max-w-[700px] md:h-[350px]">
+                <div className="relative w-full max-w-[clamp(15rem,80vw,20rem)] h-[clamp(9rem,45vw,11.875rem)] md:max-w-[43.75rem] md:h-[21.875rem]">
 
                     <Image
                         src="/logoB.png"
@@ -61,7 +61,7 @@ export function Hero() {
                 <div className="flex flex-col items-center md:items-start gap-2">
                     <div className="flex items-center gap-2 text-tekila-gray">
                         <MapPin size={14} className="text-tekila-pink" />
-                        <span className="text-[11px] uppercase tracking-[0.3em] font-serif italic text-foreground/80">
+                        <span className="text-[0.6875rem] uppercase tracking-[0.3em] font-serif italic text-foreground/80">
                             Maipú, Mendoza
                         </span>
                     </div>
@@ -75,14 +75,14 @@ export function Hero() {
                     transition={{ repeat: Infinity, duration: 2 }}
                     className="hidden md:flex flex-col items-center gap-1 cursor-pointer opacity-40 hover:opacity-100 transition-opacity"
                 >
-                    <span className="text-[8px] uppercase tracking-[0.4em] text-foreground/60">Deslizar</span>
+                    <span className="text-[0.5rem] uppercase tracking-[0.4em] text-foreground/60">Deslizar</span>
                     <ChevronDown size={14} />
                 </motion.div>
 
                 {/* Botón (Lado derecho) */}
                 <div className="relative group p-[1px] rounded-full overflow-hidden" onClick={scrollToNext}>
                     <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,transparent_270deg,#FF0080_360deg)] animate-[spin_4s_linear_infinite]" />
-                    <button className="relative px-10 py-3 bg-background rounded-full text-[10px] uppercase tracking-[0.4em] font-bold text-foreground group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900 transition-colors">
+                    <button className="relative px-10 py-3 bg-background rounded-full text-[0.625rem] uppercase tracking-[0.4em] font-bold text-foreground group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900 transition-colors">
                         Explorar
                     </button>
                 </div>

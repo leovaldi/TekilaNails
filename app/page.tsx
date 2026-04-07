@@ -72,10 +72,10 @@ export default function Home() {
       <section id="servicios-section" className="py-24 md:py-32 bg-zinc-50/50 dark:bg-zinc-900/30 overflow-hidden border-t border-zinc-100 dark:border-zinc-800/50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-16 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-            <h2 className="text-[10px] uppercase tracking-[0.5em] text-tekila-pink font-bold italic">
+            <h2 className="text-[0.625rem] uppercase tracking-[0.5em] text-tekila-pink font-bold italic">
               Selecciona tu Servicio
             </h2>
-            <p className="text-3xl sm:text-4xl md:text-5xl italic tracking-tighter font-light">
+            <p className="text-[clamp(1.5rem,6vw,3rem)] italic tracking-tighter font-light">
               Elegí tu próximo estilo
             </p>
           </div>
@@ -106,7 +106,7 @@ export default function Home() {
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-background w-full max-w-lg p-6 md:p-10 relative overflow-y-auto max-h-[90vh] no-scrollbar shadow-2xl rounded-[40px] border border-zinc-100 dark:border-zinc-800"
+              className="bg-background w-full max-w-lg p-6 md:p-10 relative overflow-y-auto max-h-[90vh] no-scrollbar shadow-2xl rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800"
             >
               <button
                 onClick={() => { setShowModal(false); setRetiroSeleccionado(null); }}
@@ -116,21 +116,21 @@ export default function Home() {
               </button>
 
               <div className="mb-10">
-                <span className="text-[9px] uppercase tracking-[0.4em] text-tekila-pink mb-2 block">
+                <span className="text-[0.5625rem] uppercase tracking-[0.4em] text-tekila-pink mb-2 block">
                   Confirmar cita
                 </span>
-                <h2 className="text-3xl italic font-light tracking-tighter">{selectedService.nombre}</h2>
+                <h2 className="text-[clamp(1.5rem,5vw,2rem)] italic font-light tracking-tighter">{selectedService.nombre}</h2>
               </div>
 
               <div className="space-y-8">
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold mb-4 block text-zinc-400">
+                  <label className="text-[0.625rem] uppercase tracking-widest font-bold mb-4 block text-zinc-400">
                     ¿Tenés esmalte previo?
                   </label>
                   <div className="grid grid-cols-1 gap-2">
                     <button
                       onClick={() => setRetiroSeleccionado(null)}
-                      className={`p-4 text-[10px] uppercase tracking-widest border transition-all rounded-xl ${!retiroSeleccionado ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
+                      className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${!retiroSeleccionado ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
                     >
                       Uñas al natural
                     </button>
@@ -138,7 +138,7 @@ export default function Home() {
                       <button
                         key={r.id}
                         onClick={() => setRetiroSeleccionado(r.id)}
-                        className={`p-4 text-[10px] uppercase tracking-widest border transition-all rounded-xl ${retiroSeleccionado === r.id ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
+                        className={`p-4 text-[0.625rem] uppercase tracking-widest border transition-all rounded-xl ${retiroSeleccionado === r.id ? 'border-tekila-pink bg-tekila-pink text-white' : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'}`}
                       >
                         {r.nombre} (+${r.precio})
                       </button>
@@ -147,13 +147,13 @@ export default function Home() {
                 </div>
 
                 <div className="bg-zinc-50 dark:bg-zinc-900/50 p-6 space-y-3 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                  <div className="flex justify-between text-[10px] text-zinc-400 uppercase tracking-widest">
+                  <div className="flex justify-between text-[0.625rem] text-zinc-400 uppercase tracking-widest">
                     <span>Subtotal servicio</span>
                     <span>${totalServicio.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center pt-6 border-t border-zinc-200 dark:border-zinc-800">
-                    <span className="font-bold uppercase text-[10px] tracking-widest">Seña + Gestión:</span>
-                    <span className="text-3xl md:text-4xl font-light text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
+                    <span className="font-bold uppercase text-[0.625rem] tracking-widest">Seña + Gestión:</span>
+                    <span className="text-[clamp(1.875rem,5vw,2.25rem)] font-light text-tekila-pink">${totalAPagarAhora.toLocaleString()}</span>
                   </div>
                 </div>
 

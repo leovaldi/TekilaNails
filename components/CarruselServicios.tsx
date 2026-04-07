@@ -56,7 +56,7 @@ export function CarruselServicios({
       <div className="flex gap-6 overflow-hidden px-8 max-w-6xl mx-auto">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex-[0_0_80%] md:flex-[0_0_35%] animate-pulse">
-            <div className="bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-[40px] mb-4" />
+            <div className="bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] rounded-[2.5rem] mb-4" />
           </div>
         ))}
       </div>
@@ -77,10 +77,10 @@ export function CarruselServicios({
                   ${isSelected ? 'opacity-100 scale-100' : 'opacity-20 scale-95 blur-[1px]'}`}
               >
                 {/* CARD REFINADA */}
-                <div className="bg-white dark:bg-zinc-950 p-5 sm:p-6 md:p-8 rounded-[45px] border border-zinc-100 dark:border-zinc-800 shadow-2xl h-full flex flex-col">
+                <div className="bg-white dark:bg-zinc-950 p-5 sm:p-6 md:p-8 rounded-[2.8125rem] border border-zinc-100 dark:border-zinc-800 shadow-2xl h-full flex flex-col">
 
                   {/* IMAGEN */}
-                  <div className="relative aspect-[1/1.15] mb-8 overflow-hidden rounded-[35px] bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-100 dark:ring-zinc-800">
+                  <div className="relative aspect-[1/1.15] mb-8 overflow-hidden rounded-[2.1875rem] bg-zinc-50 dark:bg-zinc-900 ring-1 ring-zinc-100 dark:ring-zinc-800">
                     {s.foto_url ? (
                       <Image
                         src={s.foto_url}
@@ -100,7 +100,7 @@ export function CarruselServicios({
                   <div className="flex flex-col flex-grow px-1">
                     {/* TÍTULO Y PRECIO */}
                     <div className="flex justify-between items-start gap-4 mb-6">
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-light italic tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
+                      <h3 className="text-[clamp(1.25rem,4vw,1.875rem)] font-light italic tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
                         {s.nombre}
                       </h3>
                       <div className="bg-tekila-pink px-3 py-1 rounded-full shrink-0 shadow-lg shadow-tekila-pink/20">
@@ -109,14 +109,14 @@ export function CarruselServicios({
                     </div>
 
                     {/* DESCRIPCIÓN */}
-                    <p className="text-zinc-500 dark:text-zinc-400 text-[13px] font-light leading-relaxed mb-10 whitespace-pre-wrap">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-[0.8125rem] font-light leading-relaxed mb-10 whitespace-pre-wrap">
                       {s.descripcion}
                     </p>
 
                     <div className="mt-auto">
                       <button
                         onClick={() => isSelected && onSelect(s)}
-                        className={`w-full py-5 rounded-[25px] text-[10px] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all ${isSelected ? 'bg-black dark:bg-white text-white dark:text-black active:scale-95 hover:text-tekila-pink dark:hover:text-tekila-pink cursor-pointer' : 'bg-transparent text-transparent cursor-default select-none'}`}
+                        className={`w-full py-5 rounded-[1.5625rem] text-[0.625rem] uppercase tracking-[0.5em] font-black flex items-center justify-center gap-3 transition-all ${isSelected ? 'bg-black dark:bg-white text-white dark:text-black active:scale-95 hover:text-tekila-pink dark:hover:text-tekila-pink cursor-pointer' : 'bg-transparent text-transparent cursor-default select-none'}`}
                       >
                         <Calendar size={16} className={`${isSelected ? 'text-tekila-pink' : 'text-transparent'}`} />
                         Seleccionar
@@ -153,7 +153,7 @@ export function CarruselServicios({
                 : 'opacity-100 border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black active:scale-95 shadow-lg'}`}
           >
             <ChevronLeft size={18} />
-            <span className="text-[9px] uppercase tracking-[0.5em] font-bold">Volver</span>
+            <span className="text-[0.5625rem] uppercase tracking-[0.5em] font-bold">Volver</span>
           </button>
 
           <button
@@ -164,7 +164,7 @@ export function CarruselServicios({
                 ? 'opacity-20 cursor-not-allowed border-zinc-200 dark:border-zinc-800'
                 : 'opacity-100 border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black active:scale-95 shadow-lg'}`}
           >
-            <span className="text-[9px] uppercase tracking-[0.5em] font-bold">Siguiente</span>
+            <span className="text-[0.5625rem] uppercase tracking-[0.5em] font-bold">Siguiente</span>
             <ChevronRight size={18} />
           </button>
         </div>
@@ -176,7 +176,7 @@ export function CarruselServicios({
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer group z-20"
         >
-          <span className="text-[8px] uppercase tracking-[0.5em] text-zinc-400 group-hover:text-tekila-pink font-serif italic">
+          <span className="text-[0.5rem] uppercase tracking-[0.5em] text-zinc-400 group-hover:text-tekila-pink font-serif italic">
             Deslizar
           </span>
           <ChevronDown size={14} className="text-zinc-300 group-hover:text-tekila-pink" />

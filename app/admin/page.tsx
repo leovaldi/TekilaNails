@@ -146,8 +146,8 @@ export default function AdminPage() {
           <Lock className="text-tekila-pink mx-auto" size={32} />
 
           <div className="space-y-2">
-            <h1 className="text-white text-3xl italic tracking-tighter">Acceso Privado</h1>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Panel de Administración</p>
+            <h1 className="text-white text-[clamp(1.5rem,5vw,2rem)] italic tracking-tighter">Acceso Privado</h1>
+            <p className="text-[0.625rem] text-zinc-500 uppercase tracking-widest">Panel de Administración</p>
           </div>
 
           <div className="flex flex-col gap-6">
@@ -167,7 +167,7 @@ export default function AdminPage() {
               {/* Mensaje Ajustado: Aparece justo debajo del input sin mover el botón drásticamente */}
               {loginError && (
                 <div className="absolute left-0 right-0 -bottom-5 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <span className="text-[9px] text-red-500 font-black uppercase tracking-widest">
+                  <span className="text-[0.5625rem] text-red-500 font-black uppercase tracking-widest">
                     Contraseña incorrecta
                   </span>
                 </div>
@@ -177,7 +177,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full py-4 bg-white text-black rounded-2xl text-[10px] uppercase font-bold tracking-widest hover:bg-tekila-pink hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 mt-2"
+              className="w-full py-4 bg-white text-black rounded-2xl text-[0.625rem] uppercase font-bold tracking-widest hover:bg-tekila-pink hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 mt-2"
             >
               {isLoggingIn ? <Loader2 className="animate-spin" size={14} /> : 'Entrar'}
             </button>
@@ -191,11 +191,11 @@ export default function AdminPage() {
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white p-6 md:p-12">
       <header className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="flex items-center justify-between w-full md:w-auto gap-4">
-          <h1 className="text-3xl italic tracking-tighter">Admin Tekila</h1>
+          <h1 className="text-[clamp(1.5rem,5vw,2rem)] italic tracking-tighter">Admin Tekila</h1>
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-900 rounded-full text-[9px] uppercase tracking-tighter hover:bg-tekila-pink hover:text-white transition-all group"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-900 rounded-full text-[0.5625rem] uppercase tracking-tighter hover:bg-tekila-pink hover:text-white transition-all group"
           >
             Ver Web
             <ExternalLink size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -214,7 +214,7 @@ export default function AdminPage() {
                 key={t}
                 id={`tab-${t}`}
                 onClick={() => { setTab(t as any); cancelarEdicion(); }}
-                className={`px-6 py-2.5 rounded-full text-[10px] uppercase font-bold tracking-[0.15em] transition-all whitespace-nowrap ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-md text-tekila-pink scale-105' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+                className={`px-6 py-2.5 rounded-full text-[0.625rem] uppercase font-bold tracking-[0.15em] transition-all whitespace-nowrap ${tab === t ? 'bg-white dark:bg-zinc-800 shadow-md text-tekila-pink scale-105' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
               >
                 {t}
               </button>
@@ -247,14 +247,14 @@ export default function AdminPage() {
               <div className="p-4 bg-tekila-pink/10 rounded-full mb-2">
                 <UserCircle className="text-tekila-pink" size={32} />
               </div>
-              <h2 className="text-2xl italic tracking-tighter">Tu Perfil Profesional</h2>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-medium">Gestioná tu imagen de marca</p>
+              <h2 className="text-[clamp(1.25rem,4vw,1.5rem)] italic tracking-tighter">Tu Perfil Profesional</h2>
+              <p className="text-[0.625rem] text-zinc-400 uppercase tracking-[0.3em] font-medium">Gestioná tu imagen de marca</p>
             </div>
 
             <AdminAvatarUpload />
 
-            <div className="mt-12 p-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[40px] text-center bg-zinc-50/50 dark:bg-zinc-900/50">
-              <p className="text-[10px] text-zinc-400 leading-relaxed uppercase tracking-widest max-w-xs mx-auto">
+            <div className="mt-12 p-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] text-center bg-zinc-50/50 dark:bg-zinc-900/50">
+              <p className="text-[0.625rem] text-zinc-400 leading-relaxed uppercase tracking-widest max-w-xs mx-auto">
                 Los cambios realizados aquí impactan directamente en la sección sobre mí de la web principal.
               </p>
             </div>

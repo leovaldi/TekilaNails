@@ -33,7 +33,7 @@ export const PrimaryButton = ({
       disabled={disabled}
       className={`
         w-full py-5 px-8 rounded-full 
-        uppercase tracking-[0.4em] text-[9px] font-black 
+        uppercase tracking-[0.4em] text-[0.5625rem] font-black 
         transition-all duration-500 
         ${styles[variant]}
       `}

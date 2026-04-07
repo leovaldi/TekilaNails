@@ -81,13 +81,13 @@ export function Biography() {
 
                 {/* Texto */}
                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-light font-serif italic text-foreground mb-6 leading-tight">
+                    <h2 className="text-[clamp(1.5rem,6vw,3rem)] font-light font-serif italic text-foreground mb-6 leading-tight">
                         Rocío Mena, <span className="text-tekila-pink">Especialista en Nail Art</span>
                     </h2>
 
-                    <div className="h-[2px] w-20 bg-tekila-pink mb-8 opacity-60"></div>
+                    <div className="h-[0.125rem] w-[5rem] bg-tekila-pink mb-8 opacity-60"></div>
 
-                    <p className="text-[14px] md:text-base font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl whitespace-pre-wrap">
+                    <p className="text-[0.875rem] md:text-base font-light tracking-wide text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl whitespace-pre-wrap">
                         {biografia}
                     </p>
                 </div>

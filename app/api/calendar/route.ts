@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         },
       });
     } catch (calErr) {
-      // Error silencioso en calendar para no trabar el flujo, pero podrías reportarlo a un servicio de monitoreo
+      // Error silencioso en calendar para no trabar el flujo
     }
 
     // 4. Actualización y bloqueo en Supabase (Usando Admin Role)
@@ -68,11 +68,11 @@ export async function POST(request: Request) {
         .update({ estado: 'reservado' })
         .eq('id', idHorario);
     }
-    
+
     if (reserva.id) {
       await supabaseAdmin
         .from('reservas')
-        .update({ 
+        .update({
           estado_pago: 'aprobado',
           payment_id: reserva.payment_id || null
         })
@@ -140,6 +140,26 @@ export async function POST(request: Request) {
         `
       });
     } catch (mailErr) {
+      // Error silencioso
+    }
+
+    // 6. Notificación por WhatsApp (CallMeBot)
+    try {
+      const phone = process.env.CALLMEBOT_PHONE;
+      const apiKey = process.env.CALLMEBOT_API_KEY;
+      if (phone && apiKey) {
+        const mensajeWP =
+          `💅 *¡NUEVA RESERVA!* \n\n` +
+          `👤 *Cliente:* ${reserva.nombre_cliente} \n` +
+          `✨ *Servicio:* ${reserva.servicios?.nombre || 'Consultar'} \n` +
+          `📅 *Fecha:* ${fechaLegible} hs \n\n` +
+          `✅ _Confirmada y agendada_`;
+
+        const wpUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(mensajeWP)}&apikey=${apiKey}`;
+        // Disparar sin esperar para no demorar la respuesta de la API
+        fetch(wpUrl).catch(() => { });
+      }
+    } catch (wpErr) {
       // Error silencioso
     }
 

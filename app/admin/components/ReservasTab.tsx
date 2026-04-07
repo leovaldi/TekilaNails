@@ -70,14 +70,14 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
   return (
     <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-tekila-pink flex items-center gap-2">
+        <h2 className="text-[0.625rem] font-bold uppercase tracking-widest text-tekila-pink flex items-center gap-2">
           <CalendarIcon size={14} /> Hoja de Ruta / Reservas
         </h2>
 
         {seleccionados.length > 0 && (
           <button
             onClick={() => eliminarReservas(seleccionados)}
-            className="px-4 py-2 bg-tekila-pink text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 animate-in fade-in zoom-in duration-200 shadow-lg shadow-tekila-pink/20"
+            className="px-4 py-2 bg-tekila-pink text-white rounded-2xl text-[0.5625rem] font-black uppercase tracking-widest flex items-center gap-2 animate-in fade-in zoom-in duration-200 shadow-lg shadow-tekila-pink/20"
           >
             <UserCheck size={14} /> Confirmar Selección ({seleccionados.length})
           </button>
@@ -89,7 +89,7 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
       ) : (
         <div className="space-y-3">
           {Object.entries(reservasAgrupadas).sort().map(([dia, lista]) => (
-            <div key={dia} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] overflow-hidden shadow-sm transition-all">
+            <div key={dia} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden shadow-sm transition-all">
 
               <button
                 onClick={() => toggleDay(dia)}
@@ -103,7 +103,7 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                     <p className="text-sm font-bold capitalize">
                       {new Date(dia + "T12:00:00").toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long' })}
                     </p>
-                    <p className="text-[9px] uppercase tracking-widest text-zinc-400">{lista.length} Clientas</p>
+                    <p className="text-[0.5625rem] uppercase tracking-widest text-zinc-400">{lista.length} Clientas</p>
                   </div>
                 </div>
                 {expandedDays.includes(dia) ? <ChevronUp size={20} className="text-zinc-300" /> : <ChevronDown size={20} className="text-zinc-300" />}
@@ -137,10 +137,10 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                               <p className="text-sm font-bold tracking-tight">{r.nombre_cliente}</p>
                             </div>
                             <div className="flex items-center gap-3 mt-1 text-zinc-400">
-                              <span className="text-[9px] uppercase flex items-center gap-1 font-medium">
+                              <span className="text-[0.5625rem] uppercase flex items-center gap-1 font-medium">
                                 <Scissors size={10} /> {r.servicios?.nombre}
                               </span>
-                              <span className="text-[9px] font-bold text-green-500">
+                              <span className="text-[0.5625rem] font-bold text-green-500">
                                 SEÑA: {formatMoney(r.monto_senia)}
                               </span>
                             </div>
@@ -158,7 +158,7 @@ export default function ReservasTab({ reservas, fetchData }: { reservas: any[], 
                           </a>
                           <button
                             onClick={() => eliminarReservas([r.id])}
-                            className="flex items-center gap-2 px-5 py-3 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[9px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-tekila-pink transition-all"
+                            className="flex items-center gap-2 px-5 py-3 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[0.5625rem] font-bold uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-tekila-pink transition-all"
                           >
                             <UserCheck size={14} /> Asistió
                           </button>

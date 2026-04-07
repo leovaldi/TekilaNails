@@ -76,27 +76,27 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
     <div className="max-w-4xl mx-auto space-y-8 pb-20 text-black dark:text-white">
 
       {/* PANEL DE CARGA / EDICIÓN */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-8 rounded-[32px] shadow-sm">
-        <h2 className="text-[10px] uppercase tracking-widest text-tekila-pink mb-6 font-bold flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-8 rounded-[2rem] shadow-sm">
+        <h2 className="text-[0.625rem] uppercase tracking-widest text-tekila-pink mb-6 font-bold flex items-center gap-2">
           <Clock size={14} /> {editId ? "Editando Horario" : "Generador de Agenda"}
         </h2>
 
         {editId ? (
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1 space-y-2">
-              <label className="text-[9px] uppercase font-black text-zinc-400">Nuevo Día y Hora</label>
+              <label className="text-[0.5625rem] uppercase font-black text-zinc-400">Nuevo Día y Hora</label>
               <input type="datetime-local" className="w-full p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl text-sm border border-zinc-100 dark:border-zinc-700 outline-none"
                 value={nuevoHorario} onChange={e => setNuevoHorario(e.target.value)} />
             </div>
             <div className="flex gap-2 w-full md:w-auto">
               <PrimaryButton text="Actualizar" onClick={manejarGuardado} />
-              <button onClick={() => { setEditId(null); setNuevoHorario(""); }} className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[10px] uppercase font-bold">Cancelar</button>
+              <button onClick={() => { setEditId(null); setNuevoHorario(""); }} className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-[0.625rem] uppercase font-bold">Cancelar</button>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <label className="text-[9px] uppercase font-black text-zinc-400">1. Elegir Días</label>
+              <label className="text-[0.5625rem] uppercase font-black text-zinc-400">1. Elegir Días</label>
               <div className="flex gap-2">
                 <input type="date" className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl text-sm border border-zinc-100 dark:border-zinc-700 outline-none"
                   value={nuevoDia} onChange={e => setNuevoDia(e.target.value)} />
@@ -105,7 +105,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
               </div>
               <div className="flex flex-wrap gap-2">
                 {diasSeleccionados.map(d => (
-                  <span key={d} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full text-[10px] font-bold flex items-center gap-2">
+                  <span key={d} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full text-[0.625rem] font-bold flex items-center gap-2">
                     {d.split('-').reverse().slice(0, 2).join('/')}
                     <X size={12} className="cursor-pointer text-red-400" onClick={() => setDiasSeleccionados(diasSeleccionados.filter(x => x !== d))} />
                   </span>
@@ -114,7 +114,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
             </div>
 
             <div className="space-y-4">
-              <label className="text-[9px] uppercase font-black text-zinc-400">2. Elegir Horarios (24hs)</label>
+              <label className="text-[0.5625rem] uppercase font-black text-zinc-400">2. Elegir Horarios (24hs)</label>
               <div className="flex gap-2">
                 <input type="time" className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl text-sm border border-zinc-100 dark:border-zinc-700 outline-none"
                   value={nuevaHora} onChange={e => setNuevaHora(e.target.value)} />
@@ -123,7 +123,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
               </div>
               <div className="flex flex-wrap gap-2">
                 {horasSeleccionadas.map(h => (
-                  <span key={h} className="px-3 py-1 bg-tekila-pink/10 text-tekila-pink rounded-full text-[10px] font-bold flex items-center gap-2">
+                  <span key={h} className="px-3 py-1 bg-tekila-pink/10 text-tekila-pink rounded-full text-[0.625rem] font-bold flex items-center gap-2">
                     {h}hs
                     <X size={12} className="cursor-pointer" onClick={() => setHorasSeleccionadas(horasSeleccionadas.filter(x => x !== h))} />
                   </span>
@@ -147,8 +147,8 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
       {/* SELECTOR DE VISTA */}
       <div className="flex justify-center">
         <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-2xl w-full max-w-xs">
-          <button onClick={() => setView('libres')} className={`flex-1 py-2.5 rounded-xl text-[10px] uppercase font-bold tracking-widest transition-all ${view === 'libres' ? 'bg-white dark:bg-zinc-800 text-tekila-pink shadow-sm' : 'text-zinc-400'}`}>Libres</button>
-          <button onClick={() => setView('dados')} className={`flex-1 py-2.5 rounded-xl text-[10px] uppercase font-bold tracking-widest transition-all ${view === 'dados' ? 'bg-white dark:bg-zinc-800 text-green-500 shadow-sm' : 'text-zinc-400'}`}>Dados</button>
+          <button onClick={() => setView('libres')} className={`flex-1 py-2.5 rounded-xl text-[0.625rem] uppercase font-bold tracking-widest transition-all ${view === 'libres' ? 'bg-white dark:bg-zinc-800 text-tekila-pink shadow-sm' : 'text-zinc-400'}`}>Libres</button>
+          <button onClick={() => setView('dados')} className={`flex-1 py-2.5 rounded-xl text-[0.625rem] uppercase font-bold tracking-widest transition-all ${view === 'dados' ? 'bg-white dark:bg-zinc-800 text-green-500 shadow-sm' : 'text-zinc-400'}`}>Dados</button>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
                 <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400"><CalIcon size={18} /></div>
                 <div>
                   <p className="text-sm font-bold capitalize">{new Date(dia + "T12:00:00").toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long' })}</p>
-                  <p className="text-[9px] uppercase tracking-widest text-zinc-400">{lista.length} Turnos</p>
+                  <p className="text-[0.5625rem] uppercase tracking-widest text-zinc-400">{lista.length} Turnos</p>
                 </div>
               </div>
               {expandedDays.includes(dia) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -173,7 +173,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
                 {/* BOTÓN BORRADO MASIVO */}
                 {view === 'libres' && seleccionados.length > 0 && (
                   <div className="py-3 flex justify-end">
-                    <button onClick={borrarSeleccionados} className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+                    <button onClick={borrarSeleccionados} className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-[0.625rem] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
                       Borrar {seleccionados.length} seleccionados
                     </button>
                   </div>
@@ -203,7 +203,7 @@ export default function HorariosTab({ horarios, nuevoHorario, setNuevoHorario, g
                           <button onClick={() => borrarHorario(h.id)} className="p-2 text-zinc-300 hover:text-red-500"><Trash2 size={16} /></button>
                         </>
                       ) : (
-                        <button onClick={() => liberarTurno(h.id)} className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-[9px] font-bold uppercase rounded-lg text-orange-500 flex items-center gap-2"><RotateCcw size={12} /> Liberar</button>
+                        <button onClick={() => liberarTurno(h.id)} className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-[0.5625rem] font-bold uppercase rounded-lg text-orange-500 flex items-center gap-2"><RotateCcw size={12} /> Liberar</button>
                       )}
                     </div>
                   </div>

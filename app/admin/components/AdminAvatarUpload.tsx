@@ -137,7 +137,7 @@ export function AdminAvatarUpload() {
     }
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 bg-white dark:bg-zinc-900 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm transition-all duration-500">
+        <div className="w-full max-w-md mx-auto p-6 bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 shadow-sm transition-all duration-500">
             <div className="flex flex-col items-center text-center gap-4">
 
                 {/* Avatar Display */}
@@ -156,7 +156,7 @@ export function AdminAvatarUpload() {
                     <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">Foto de Perfil</h3>
                 </div>
 
-                <label className={`relative overflow-hidden px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all cursor-pointer ${uploading ? 'bg-zinc-100 text-zinc-400' : 'bg-tekila-pink text-white hover:scale-105 active:scale-95 shadow-md shadow-tekila-pink/20'}`}>
+                <label className={`relative overflow-hidden px-8 py-3 rounded-full text-[0.625rem] font-black uppercase tracking-[0.2em] transition-all cursor-pointer ${uploading ? 'bg-zinc-100 text-zinc-400' : 'bg-tekila-pink text-white hover:scale-105 active:scale-95 shadow-md shadow-tekila-pink/20'}`}>
                     {uploading ? 'Subiendo...' : 'Seleccionar Nueva Foto'}
                     <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} className="hidden" />
                 </label>
@@ -172,14 +172,14 @@ export function AdminAvatarUpload() {
                     <button
                         onClick={handleSaveBio}
                         disabled={savingBio}
-                        className="w-full py-3 bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+                        className="w-full py-3 bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 text-white rounded-xl text-[0.625rem] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all"
                     >
                         {savingBio ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Guardar Biografía
                     </button>
                 </div>
 
                 {status === 'error' && !passError && (
-                    <span className="text-[9px] text-red-500 font-bold uppercase animate-pulse">Error de conexión.</span>
+                    <span className="text-[0.5625rem] text-red-500 font-bold uppercase animate-pulse">Error de conexión.</span>
                 )}
 
                 <hr className="w-full border-zinc-100 dark:border-zinc-800 my-2" />
@@ -189,7 +189,7 @@ export function AdminAvatarUpload() {
                     {!showSecurity ? (
                         <button
                             onClick={() => setShowSecurity(true)}
-                            className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-tekila-pink flex items-center justify-center gap-2 w-full py-2 transition-colors"
+                            className="text-[0.625rem] font-bold uppercase tracking-widest text-zinc-400 hover:text-tekila-pink flex items-center justify-center gap-2 w-full py-2 transition-colors"
                         >
                             <Lock size={12} /> Configuración de Acceso
                         </button>
@@ -224,18 +224,18 @@ export function AdminAvatarUpload() {
                                 className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl text-xs outline-none focus:border-tekila-pink"
                             />
 
-                            {passError && <p className="text-[9px] text-red-500 font-bold uppercase px-1">{passError}</p>}
+                            {passError && <p className="text-[0.5625rem] text-red-500 font-bold uppercase px-1">{passError}</p>}
 
                             <button
                                 onClick={handleUpdatePassword}
                                 disabled={updatingPass}
-                                className="w-full py-3 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                className="w-full py-3 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-xl text-[0.5625rem] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
                             >
                                 {updatingPass ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />} Actualizar Acceso
                             </button>
                             <button
                                 onClick={resetSecurityFields}
-                                className="text-[9px] font-bold uppercase text-zinc-400 w-full pt-1 hover:text-red-400"
+                                className="text-[0.5625rem] font-bold uppercase text-zinc-400 w-full pt-1 hover:text-red-400"
                             >
                                 Cancelar
                             </button>

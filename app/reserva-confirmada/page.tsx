@@ -87,18 +87,18 @@ function ContenidoReserva() {
         {status === 'procesando' ? (
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="animate-spin text-tekila-pink" size={48} />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">Verificando Turno...</p>
+            <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-zinc-400">Verificando Turno...</p>
           </div>
         ) : (
           <div className="space-y-8 animate-in fade-in zoom-in duration-700">
             <CheckCircle size={60} className="text-tekila-pink mx-auto stroke-[1px]" />
             <div>
-              <h1 className="text-4xl italic font-light tracking-tighter mb-4">Todo listo</h1>
+              <h1 className="text-[clamp(1.5rem,6vw,2.25rem)] italic font-light tracking-tighter mb-4">Todo listo</h1>
               <p className="text-sm text-zinc-500 italic leading-relaxed">
                 Tu turno ya fue agendado correctamente. Rocío recibió una notificación y se contactará con vos para los detalles finales.
               </p>
             </div>
-            <Link href="/" className="inline-block px-12 py-4 border border-black dark:border-white rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+            <Link href="/" className="inline-block px-12 py-4 border border-black dark:border-white rounded-full font-bold uppercase text-[0.625rem] tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
               Volver al inicio
             </Link>
           </div>
