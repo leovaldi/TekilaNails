@@ -2,24 +2,26 @@
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle, Loader2 } from 'lucide-react'
+import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 function ContenidoReserva() {
   const searchParams = useSearchParams()
   const externalReference = searchParams.get('external_reference')
   const paymentId = searchParams.get('payment_id')
-  const [status, setStatus] = useState('procesando')
+  const [status, setStatus] = useState<'procesando' | 'listo' | 'error'>('procesando')
   const ejecutadoRef = useRef(false)
 
   useEffect(() => {
     async function confirmarYAgendar() {
-      if (!externalReference || status === 'listo' || ejecutadoRef.current) return;
+      // Evitar ejecuciones múltiples en montaje de React
+      if (!externalReference || status !== 'procesando' || ejecutadoRef.current) return;
 
       try {
         ejecutadoRef.current = true;
+        console.log(`[LOG] Iniciando verificación de pago para: ${externalReference}`);
 
-        // 1. Buscamos los datos de la reserva original con sus relaciones
+        // 1. Buscamos los datos de la reserva
         const { data: reserva, error: fetchError } = await supabase
           .from('reservas')
           .select('*, servicios(*), horarios_disponibles(*)')
@@ -27,56 +29,61 @@ function ContenidoReserva() {
           .single()
 
         if (fetchError || !reserva) {
-          console.error("Reserva no encontrada");
+          console.error("[TEKILA_CLIENT_ERROR] Reserva no encontrada en BD:", fetchError);
           setStatus('error');
           return;
         }
 
-        let reservaFinal = reserva;
-
-        // 2. Actualizamos el estado de pago y obtenemos el objeto fresco
-        if (reserva.estado_pago !== 'aprobado' || !reserva.payment_id) {
-          const { data: reservaActualizada, error: updateError } = await supabase
-            .from('reservas')
-            .update({
-              estado_pago: 'aprobado',
-              payment_id: paymentId
-            })
-            .eq('id', externalReference)
-            .select('*, servicios(*), horarios_disponibles(*)')
-            .single();
-
-          if (!updateError && reservaActualizada) {
-            reservaFinal = reservaActualizada;
-          }
+        // 2. Si ya está aprobado, solo confirmamos visualmente
+        if (reserva.estado_pago === 'aprobado') {
+          setStatus('listo');
+          return;
         }
 
-        // 3. LLAMADA A LA API (Con los datos confirmados devueltos o inyectados forzosamente)
+        // 3. Intentamos confirmar el pago y llamar al orquestador
+        const { data: reservaActualizada, error: updateError } = await supabase
+          .from('reservas')
+          .update({
+            estado_pago: 'aprobado',
+            payment_id: paymentId
+          })
+          .eq('id', externalReference)
+          .select('*, servicios(*), horarios_disponibles(*)')
+          .single();
+
+        if (updateError) throw new Error("Falla al actualizar estado de pago");
+
+        // 4. Llamada al orquestador (API Calendar)
         const response = await fetch('/api/calendar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reserva: { ...reservaFinal, payment_id: paymentId, estado_pago: 'aprobado' } })
+          body: JSON.stringify({ reserva: reservaActualizada })
         });
 
-        if (response.ok) {
-          setStatus('listo');
-        } else {
-          console.error("Error en la API de calendario");
-          setStatus('listo'); // Marcamos listo porque el pago ya impactó
+        if (!response.ok) {
+          const errData = await response.json();
+          console.error("[TEKILA_CLIENT_ERROR] API /api/calendar falló:", errData);
+          // Opcional: mostrar error al usuario, pero el pago ya fue registrado
         }
 
+        setStatus('listo');
+
       } catch (error) {
-        console.error("Error crítico:", error);
+        console.error("[TEKILA_CLIENT_FATAL] Error en flujo de confirmación:", error);
         setStatus('error');
       }
     }
+
     confirmarYAgendar();
   }, [externalReference, paymentId, status]);
 
   if (status === 'error') {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center bg-white dark:bg-zinc-950">
-        <p className="text-zinc-500 italic">No pudimos verificar tu reserva. Por favor, contactanos directamente.</p>
+        <div className="space-y-4">
+          <AlertCircle size={48} className="text-red-500 mx-auto" />
+          <p className="text-zinc-500 italic">No pudimos finalizar la reserva. Por favor, contactanos directamente con tu número de pago.</p>
+        </div>
       </div>
     )
   }
